@@ -1,0 +1,16 @@
+node_modules
+.next
+dist
+build
+.turbo
+coverage
+out
+
+pnpm-lock.yaml
+**/*.min.*
+
+# Generated / vendor — keep formatting as-is
+**/.next/**
+**/dist/**
+**/build/**
+apps/api/prisma/migrations

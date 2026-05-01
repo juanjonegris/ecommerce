@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:tanstack.com)",
+      "WebFetch(domain:www.prisma.io)",
+      "WebFetch(domain:docs.nestjs.com)",
+      "WebFetch(domain:hackernoon.com)",
+      "WebFetch(domain:www.wisp.blog)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:copyprogramming.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:rehmat-sayany.medium.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:waqarilyas.dev)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm --filter @repo/ui exec eslint . --fix)"
+    ]
+  }
+}

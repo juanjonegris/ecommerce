@@ -18,6 +18,10 @@ coverage
 # Turbo
 .turbo
 
+# Lint / format caches
+.eslintcache
+.prettiercache
+
 # Vercel
 .vercel
 

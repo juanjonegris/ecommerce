@@ -1,57 +1,60 @@
-import js from "@eslint/js";
-import { globalIgnores } from "eslint/config";
-import eslintConfigPrettier from "eslint-config-prettier";
-import tseslint from "typescript-eslint";
-import pluginReactHooks from "eslint-plugin-react-hooks";
-import pluginReact from "eslint-plugin-react";
-import globals from "globals";
-import pluginNext from "@next/eslint-plugin-next";
-import { config as baseConfig } from "./base.js";
+import pluginNext from '@next/eslint-plugin-next';
+import { globalIgnores } from 'eslint/config';
+import pluginReact from 'eslint-plugin-react';
+import pluginReactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
+
+import { config as baseConfig } from './base.js';
 
 /**
- * A custom ESLint configuration for libraries that use Next.js.
+ * Next.js + React overlay on top of the strict base config.
  *
  * @type {import("eslint").Linter.Config[]}
- * */
+ */
 export const nextJsConfig = [
   ...baseConfig,
-  js.configs.recommended,
-  eslintConfigPrettier,
-  ...tseslint.configs.recommended,
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+
+  // React rules
   {
+    files: ['**/*.{ts,tsx,jsx}'],
     ...pluginReact.configs.flat.recommended,
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
-      globals: {
-        ...globals.serviceworker,
-      },
+      globals: { ...globals.browser, ...globals.serviceworker },
     },
+    settings: { react: { version: 'detect' } },
   },
+
+  // Next.js plugin (replaces legacy eslint-config-next)
   {
-    plugins: {
-      "@next/next": pluginNext,
-    },
+    files: ['**/*.{ts,tsx,jsx}'],
+    plugins: { '@next/next': pluginNext },
     rules: {
       ...pluginNext.configs.recommended.rules,
-      ...pluginNext.configs["core-web-vitals"].rules,
+      ...pluginNext.configs['core-web-vitals'].rules,
     },
   },
+
+  // React Hooks
   {
-    plugins: {
-      "react-hooks": pluginReactHooks,
-    },
-    settings: { react: { version: "detect" } },
+    files: ['**/*.{ts,tsx,jsx}'],
+    plugins: { 'react-hooks': pluginReactHooks },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
-      // React scope no longer necessary with new JSX transform.
-      "react/react-in-jsx-scope": "off",
+      // New JSX transform (React 17+) — React import not required in scope
+      'react/react-in-jsx-scope': 'off',
+    },
+  },
+
+  // JSX components: relax explicit-function-return-type. Components return
+  // JSX.Element implicitly and adding `: JSX.Element` everywhere is noise.
+  // Strict rule still applies to non-JSX TS files via base config.
+  {
+    files: ['**/*.{tsx,jsx}'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
 ];
