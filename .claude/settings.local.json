@@ -17,7 +17,16 @@
       "Bash(pnpm exec *)",
       "Bash(pnpm install *)",
       "Bash(pnpm lint *)",
-      "Bash(pnpm --filter @repo/ui exec eslint . --fix)"
+      "Bash(pnpm --filter @repo/ui exec eslint . --fix)",
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm --filter @repo/api typecheck)",
+      "Bash(pnpm *)",
+      "Bash(node_modules/.bin/dotenv -e ../../.env -- node_modules/.bin/ts-node prisma/seed.ts)",
+      "Bash(pnpm --filter @repo/api dev)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3001/docs)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3001/health)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3001/health/db)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3001/health/redis)"
     ]
   }
 }

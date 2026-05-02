@@ -1,0 +1,13 @@
+{
+  "extends": "@repo/tsconfig/nestjs.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "sourceMap": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@repo/types": ["../../packages/types/index.d.ts"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*", "prisma/**/*", "prisma.config.ts"]
+}

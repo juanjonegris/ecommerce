@@ -15,7 +15,18 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": [
+        "PORT",
+        "DATABASE_URL",
+        "REDIS_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CORS_ORIGINS",
+        "THROTTLE_TTL",
+        "THROTTLE_LIMIT",
+        "NODE_ENV"
+      ]
     }
   }
 }
