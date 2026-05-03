@@ -56,9 +56,8 @@ async function bootstrap(): Promise<void> {
   const port = config.get<AppConfig['PORT']>('PORT') ?? 3001;
   await app.listen(port, () => {
     logger.log({
-      message: `API listening on port ${String(port)}`,
-      module: 'Bootstrap',
-      operation: 'start',
+      message: 'api.bootstrap.start_succeeded',
+      port,
     });
   });
 }

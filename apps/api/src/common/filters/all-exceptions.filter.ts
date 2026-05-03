@@ -35,10 +35,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (!(exception instanceof HttpException)) {
       this.logger.error(
         {
-          message: 'Unhandled exception',
+          message: 'http.exception_filter.catch_failed',
           requestId,
-          module: 'AllExceptionsFilter',
-          operation: 'catch',
           method: req.method,
           url: req.url,
           error:

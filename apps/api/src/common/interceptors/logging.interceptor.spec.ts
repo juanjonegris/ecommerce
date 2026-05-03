@@ -35,7 +35,7 @@ describe('LoggingInterceptor', () => {
       complete: () => {
         expect(mockLogger.log).toHaveBeenCalledWith(
           expect.objectContaining({
-            message: 'Request completed',
+            message: 'http.interceptor.request_succeeded',
             method: 'GET',
             url: '/items',
             statusCode: 200,
@@ -55,7 +55,7 @@ describe('LoggingInterceptor', () => {
       error: () => {
         expect(mockLogger.log).toHaveBeenCalledWith(
           expect.objectContaining({
-            message: 'Request failed',
+            message: 'http.interceptor.request_failed',
             method: 'GET',
             url: '/items',
             requestId: 'req-xyz',

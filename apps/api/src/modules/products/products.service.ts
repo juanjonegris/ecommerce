@@ -51,10 +51,8 @@ export class ProductsService {
     const slug = slugify(dto.name);
 
     this.logger.log({
-      message: 'Creating product',
+      message: 'product.service.create_started',
       requestId,
-      module: 'ProductsService',
-      operation: 'create',
       slug,
     });
 
@@ -71,10 +69,8 @@ export class ProductsService {
     });
 
     this.logger.log({
-      message: 'Product created',
+      message: 'product.service.create_succeeded',
       requestId,
-      module: 'ProductsService',
-      operation: 'create',
       productId: product.id,
     });
 
@@ -85,10 +81,8 @@ export class ProductsService {
     const requestId = this.cls.getId();
 
     this.logger.log({
-      message: 'Updating product',
+      message: 'product.service.update_started',
       requestId,
-      module: 'ProductsService',
-      operation: 'update',
       productId: id,
     });
 
@@ -117,10 +111,8 @@ export class ProductsService {
     const product = await this.repository.update(id, patch);
 
     this.logger.log({
-      message: 'Product updated',
+      message: 'product.service.update_succeeded',
       requestId,
-      module: 'ProductsService',
-      operation: 'update',
       productId: id,
     });
 
@@ -131,10 +123,8 @@ export class ProductsService {
     const requestId = this.cls.getId();
 
     this.logger.log({
-      message: 'Removing product',
+      message: 'product.service.remove_started',
       requestId,
-      module: 'ProductsService',
-      operation: 'remove',
       productId: id,
     });
 
@@ -145,10 +135,8 @@ export class ProductsService {
     await this.repository.softDelete(id);
 
     this.logger.log({
-      message: 'Product removed',
+      message: 'product.service.remove_succeeded',
       requestId,
-      module: 'ProductsService',
-      operation: 'remove',
       productId: id,
     });
   }

@@ -47,7 +47,7 @@ describe('AllExceptionsFilter', () => {
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         requestId: 'req-abc',
-        message: 'Unhandled exception',
+        message: 'http.exception_filter.catch_failed',
       }),
       err.stack,
     );

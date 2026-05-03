@@ -32,10 +32,8 @@ export class LoggingInterceptor implements NestInterceptor {
             .switchToHttp()
             .getResponse<Response>().statusCode;
           this.logger.log({
-            message: 'Request completed',
+            message: 'http.interceptor.request_succeeded',
             requestId,
-            module: 'LoggingInterceptor',
-            operation: 'request',
             method,
             url,
             statusCode,
@@ -44,10 +42,8 @@ export class LoggingInterceptor implements NestInterceptor {
         },
         error: () => {
           this.logger.log({
-            message: 'Request failed',
+            message: 'http.interceptor.request_failed',
             requestId,
-            module: 'LoggingInterceptor',
-            operation: 'request',
             method,
             url,
             duration: Date.now() - start,

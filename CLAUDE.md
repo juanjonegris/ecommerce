@@ -212,26 +212,56 @@ Always use `import type` for type-only imports.
 
 ## 5. Logging
 
-Use `nest-winston` for structured JSON logging. Every log entry includes contextual fields.
+Use `nest-winston` for structured JSON logging with dot-namespaced event names. Every log entry includes `requestId` and relevant contextual fields.
 
 Inject via `@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService`.
 
+### Event Naming Convention
+
+**Format:** `{domain}.{component}.{verb}_{state}`
+
+| Segment     | Definition                              | Examples                                                  |
+| ----------- | --------------------------------------- | --------------------------------------------------------- |
+| `domain`    | Business domain or infrastructure layer | `api`, `http`, `product`, `order`                         |
+| `component` | NestJS class responsible (snake_case)   | `bootstrap`, `service`, `interceptor`, `exception_filter` |
+| `verb`      | Action performed                        | `start`, `create`, `update`, `remove`, `request`, `catch` |
+| `state`     | Lifecycle phase                         | `started`, `succeeded`, `failed`                          |
+
+**Example:**
+
 ```typescript
 // Log at operation boundaries with contextual fields
-async create(dto: CreateOrderDto, requestId: string): Promise<Order> {
-  this.logger.log({ message: 'Creating order', requestId, module: 'OrdersService', operation: 'create', customerId: dto.customerId });
+async create(dto: CreateOrderDto): Promise<Order> {
+  const requestId = this.cls.getId();
+
+  this.logger.log({
+    message: 'order.service.create_started',
+    requestId,
+    customerId: dto.customerId
+  });
 
   const order = await this.repository.create(dto);
 
-  this.logger.log({ message: 'Order created', requestId, module: 'OrdersService', operation: 'create', orderId: order.id });
+  this.logger.log({
+    message: 'order.service.create_succeeded',
+    requestId,
+    orderId: order.id
+  });
   return order;
 }
 
-// Errors: include message + stack
-this.logger.error({ message: 'Failed to create order', requestId, module: 'OrdersService', error: error.message }, error.stack);
+// Errors: include error message + stack
+this.logger.error(
+  {
+    message: 'http.exception_filter.catch_failed',
+    requestId,
+    error: err.message
+  },
+  err.stack
+);
 ```
 
-**Rules:** Always include `requestId`, `module`, `operation`. Log entity ID on success. Never log passwords, tokens, or card numbers.
+**Rules:** Always include `requestId`. Log entity ID on success. Never log passwords, tokens, or card numbers.
 
 ---
 
