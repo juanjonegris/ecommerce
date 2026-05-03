@@ -1,0 +1,15 @@
+{
+  "Common": {
+    "appName": "Demo Store",
+    "browse": "Browse products",
+    "addToCart": "Add to cart",
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "total": "Total",
+    "emptyCart": "Your cart is empty."
+  },
+  "Products": {
+    "title": "Products",
+    "empty": "No products available. Make sure the API is running and seeded."
+  }
+}

@@ -50,6 +50,25 @@ export default [
     },
   },
 
+  // App Router only — disable Pages Router-era rule that warns when there's
+  // no /pages directory. Applies to apps/web (Next.js) only.
+  {
+    files: ['apps/web/**/*.{ts,tsx,jsx}'],
+    rules: {
+      '@next/next/no-html-link-for-pages': 'off',
+    },
+  },
+
+  // JSX components: explicit return types are noise (components return
+  // JSX.Element implicitly). Mirrors the same override inside the next-js
+  // preset; repeated here so it wins after the global ...baseConfig spread.
+  {
+    files: ['**/*.{tsx,jsx}'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
+  },
+
   // Never lint vendor/build artifacts from the root
   {
     ignores: [

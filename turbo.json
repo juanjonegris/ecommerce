@@ -1,11 +1,13 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": ["CI"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["API_URL", "NODE_ENV"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -22,10 +24,13 @@
         "REDIS_URL",
         "JWT_SECRET",
         "JWT_EXPIRES_IN",
+        "JWT_REFRESH_SECRET",
+        "JWT_REFRESH_EXPIRES_IN",
         "CORS_ORIGINS",
         "THROTTLE_TTL",
         "THROTTLE_LIMIT",
-        "NODE_ENV"
+        "NODE_ENV",
+        "API_URL"
       ]
     }
   }

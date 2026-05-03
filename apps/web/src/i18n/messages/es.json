@@ -1,0 +1,15 @@
+{
+  "Common": {
+    "appName": "Tienda Demo",
+    "browse": "Ver productos",
+    "addToCart": "Agregar al carrito",
+    "cart": "Carrito",
+    "checkout": "Pagar",
+    "total": "Total",
+    "emptyCart": "Tu carrito está vacío."
+  },
+  "Products": {
+    "title": "Productos",
+    "empty": "No hay productos disponibles. Asegurate de que la API esté corriendo y con datos."
+  }
+}
