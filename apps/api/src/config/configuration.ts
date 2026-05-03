@@ -8,7 +8,9 @@ export const ConfigSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   JWT_SECRET: z.string().min(1),
-  JWT_EXPIRES_IN: z.string().default('1d'),
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_SECRET: z.string().min(1),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGINS: z
     .string()
     .default('http://localhost:3000')

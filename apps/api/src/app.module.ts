@@ -6,6 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClsModule } from '@/cls/cls.module';
 import { configuration, validate } from '@/config/configuration';
 import { LoggerModule } from '@/logger/logger.module';
+import { AuthModule } from '@/modules/auth/auth.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { PrismaModule } from '@/prisma/prisma.module';
@@ -27,6 +28,7 @@ import { AppService } from './app.service';
     LoggerModule,
     PrismaModule,
     HealthModule,
+    AuthModule,
     ProductsModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],

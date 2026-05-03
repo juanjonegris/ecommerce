@@ -6,7 +6,7 @@
     "sourceMap": true,
     "paths": {
       "@/*": ["src/*"],
-      "@repo/types": ["../../packages/types/index.d.ts"]
+      "@repo/types": ["../../packages/types/src/index.ts"]
     }
   },
   "include": ["src/**/*", "test/**/*", "prisma/**/*", "prisma.config.ts"]

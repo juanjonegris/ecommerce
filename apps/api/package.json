@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
+    "@repo/types": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -62,7 +63,6 @@
     "@nestjs/testing": "^11.0.1",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsconfig": "workspace:*",
-    "@repo/types": "workspace:*",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
@@ -96,7 +96,7 @@
     },
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1",
-      "^@repo/types$": "<rootDir>/../../../packages/types/index.d.ts"
+      "^@repo/types$": "<rootDir>/../../../packages/types/src/index.ts"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s",
