@@ -6,10 +6,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClsModule } from '@/cls/cls.module';
 import { configuration, validate } from '@/config/configuration';
 import { LoggerModule } from '@/logger/logger.module';
+import { MailModule } from '@/mail/mail.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { PrismaModule } from '@/prisma/prisma.module';
+import { QueuesModule } from '@/queues/queues.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -30,6 +32,8 @@ import { AppService } from './app.service';
     HealthModule,
     AuthModule,
     ProductsModule,
+    MailModule,
+    QueuesModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

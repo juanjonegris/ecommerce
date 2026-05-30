@@ -17,6 +17,9 @@ export const ConfigSchema = z.object({
     .transform((v) => v.split(',').map((s) => s.trim())),
   THROTTLE_TTL: z.coerce.number().default(60_000),
   THROTTLE_LIMIT: z.coerce.number().default(10),
+  // Empty = dev stub mode: MailService logs the payload instead of sending.
+  RESEND_API_KEY: z.string().default(''),
+  MAIL_FROM: z.string().default('no-reply@localhost'),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;
