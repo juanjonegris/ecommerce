@@ -8,6 +8,7 @@ import { configuration, validate } from '@/config/configuration';
 import { LoggerModule } from '@/logger/logger.module';
 import { MailModule } from '@/mail/mail.module';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { CategoriesModule } from '@/modules/categories/categories.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { PrismaModule } from '@/prisma/prisma.module';
@@ -31,6 +32,7 @@ import { AppService } from './app.service';
     PrismaModule,
     HealthModule,
     AuthModule,
+    CategoriesModule,
     ProductsModule,
     MailModule,
     QueuesModule,
