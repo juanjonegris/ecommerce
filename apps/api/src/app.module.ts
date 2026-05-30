@@ -11,6 +11,7 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { CartModule } from '@/modules/cart/cart.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
 import { HealthModule } from '@/modules/health/health.module';
+import { OrdersModule } from '@/modules/orders/orders.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { QueuesModule } from '@/queues/queues.module';
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     AuthModule,
     CartModule,
     CategoriesModule,
+    OrdersModule,
     ProductsModule,
     MailModule,
     QueuesModule,

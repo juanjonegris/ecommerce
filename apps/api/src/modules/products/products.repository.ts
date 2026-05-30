@@ -89,6 +89,21 @@ export class ProductsRepository {
     return this.toEntity(row);
   }
 
+  // Inventory belongs to the products domain. The optional tx client lets a
+  // caller (orders creation) decrement stock inside its own $transaction so the
+  // order + items + stock writes stay atomic.
+  async decrementStock(
+    productId: string,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    const client = tx ?? this.prisma;
+    await client.product.update({
+      where: { id: productId },
+      data: { stock: { decrement: quantity } },
+    });
+  }
+
   private toEntity(row: PrismaProduct): ProductEntity {
     const e = new ProductEntity();
     e.id = row.id;
