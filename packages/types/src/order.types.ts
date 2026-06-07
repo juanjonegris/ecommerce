@@ -30,6 +30,8 @@ export interface Order {
   customerId: string | null;
   status: OrderStatus;
   total: number;
+  discountCodeId: string | null;
+  discountAmount: number | null;
   createdAt: Date;
   updatedAt: Date;
   items?: OrderItem[];
@@ -40,6 +42,8 @@ export const OrderSchema = z.object({
   customerId: z.string().nullable(),
   status: OrderStatusSchema,
   total: z.number().nonnegative(),
+  discountCodeId: z.string().nullable(),
+  discountAmount: z.number().nonnegative().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   items: z.array(OrderItemSchema).optional(),

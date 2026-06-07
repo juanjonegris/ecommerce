@@ -18,6 +18,8 @@ interface CreateOrderData {
   customerId: string | null;
   total: number;
   items: { productId: string; quantity: number; price: number }[];
+  discountCodeId?: string | null;
+  discountAmount?: number | null;
 }
 
 interface FindOrdersFilters {
@@ -38,15 +40,24 @@ export class OrdersRepository {
     private readonly products: ProductsRepository,
   ) {}
 
-  async create(data: CreateOrderData): Promise<OrderEntity> {
+  async create(
+    data: CreateOrderData,
+    tx?: Prisma.TransactionClient,
+  ): Promise<OrderEntity> {
     // Stock is NOT decremented here — inventory is reserved on payment success
     // via confirmAndDecrementStock. An unpaid PENDING order does not tie up
     // inventory; expired/abandoned carts simply never confirm.
-    const order = await this.prisma.order.create({
+    // The optional `tx` parameter lets OrdersService wrap create + discount
+    // redemption in a single $transaction so a P2002 on the redemption rolls
+    // back the order create.
+    const client = tx ?? this.prisma;
+    const order = await client.order.create({
       data: {
         customerId: data.customerId,
         status: 'PENDING',
         total: data.total,
+        discountCodeId: data.discountCodeId ?? null,
+        discountAmount: data.discountAmount ?? null,
         items: {
           create: data.items.map((i) => ({
             productId: i.productId,
@@ -145,6 +156,9 @@ export class OrdersRepository {
     e.customerId = row.customerId;
     e.status = row.status;
     e.total = Number(row.total);
+    e.discountCodeId = row.discountCodeId;
+    e.discountAmount =
+      row.discountAmount === null ? null : Number(row.discountAmount);
     e.createdAt = row.createdAt;
     e.updatedAt = row.updatedAt;
     e.items = row.items.map((i) => this.toItemEntity(i));

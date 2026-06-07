@@ -15,7 +15,9 @@ import type { PaginatedResponse } from '@repo/types';
 import type { UserEntity } from '@/modules/auth/entities/user.entity';
 import type { CartIdentity } from '@/modules/cart/cart.service';
 import { CartService } from '@/modules/cart/cart.service';
+import { DiscountsService } from '@/modules/discounts/discounts.service';
 import { ProductsRepository } from '@/modules/products/products.repository';
+import { PrismaService } from '@/prisma/prisma.service';
 import { EmailQueue } from '@/queues/emails/email-queue.service';
 
 import type { CreateOrderDto } from './dto/create-order.dto';
@@ -45,6 +47,8 @@ export class OrdersService {
     private readonly repository: OrdersRepository,
     private readonly products: ProductsRepository,
     private readonly cart: CartService,
+    private readonly discounts: DiscountsService,
+    private readonly prisma: PrismaService,
     private readonly emailQueue: EmailQueue,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: LoggerService,
@@ -89,18 +93,54 @@ export class OrdersService {
       }
     }
 
-    const total = this.round2(
+    const subtotal = this.round2(
       cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     );
 
-    const order = await this.repository.create({
-      customerId: user?.id ?? null,
-      total,
-      items: cart.items.map((i) => ({
-        productId: i.productId,
-        quantity: i.quantity,
-        price: i.price,
-      })),
+    // Optional discount: resolve BEFORE opening the $transaction so the
+    // BadRequest / NotFound paths short-circuit without touching the DB writes.
+    let discountCodeId: string | null = null;
+    let discountAmount: number | null = null;
+    let total = subtotal;
+    if (dto.discountCode) {
+      const validation = await this.discounts.validateForSubtotal(
+        dto.discountCode,
+        subtotal,
+      );
+      discountCodeId = validation.discountId;
+      discountAmount = validation.amountApplied;
+      total = validation.total;
+    }
+
+    const items = cart.items.map((i) => ({
+      productId: i.productId,
+      quantity: i.quantity,
+      price: i.price,
+    }));
+
+    // Wrap create + redemption insert in a single transaction so a P2002 on
+    // (discountCodeId, orderId) rolls back the order. If no discount is being
+    // applied, the transaction is a single insert — same shape as before.
+    const order = await this.prisma.$transaction(async (tx) => {
+      const created = await this.repository.create(
+        {
+          customerId: user?.id ?? null,
+          total,
+          items,
+          discountCodeId,
+          discountAmount,
+        },
+        tx,
+      );
+      if (discountCodeId !== null && discountAmount !== null) {
+        await this.discounts.redeem(
+          discountCodeId,
+          created.id,
+          discountAmount,
+          tx,
+        );
+      }
+      return created;
     });
 
     // identity is non-null here: a non-empty cart can only come from a resolved
@@ -109,6 +149,18 @@ export class OrdersService {
 
     // No email here — the order is still unpaid (PENDING). The confirmation
     // email is enqueued from markPaid() once a payment webhook succeeds.
+
+    if (discountCodeId !== null) {
+      this.logger.log({
+        message: 'order.service.create_with_discount_succeeded',
+        requestId,
+        orderId: order.id,
+        discountCodeId,
+        discountAmount,
+        subtotal,
+        total,
+      });
+    }
 
     this.logger.log({
       message: 'order.service.create_succeeded',

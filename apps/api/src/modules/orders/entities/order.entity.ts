@@ -16,6 +16,8 @@ export class OrderEntity implements Order {
   customerId!: string | null;
   status!: OrderStatus;
   total!: number;
+  discountCodeId!: string | null;
+  discountAmount!: number | null;
   createdAt!: Date;
   updatedAt!: Date;
   items?: OrderItemEntity[];

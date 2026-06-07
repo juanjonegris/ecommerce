@@ -10,6 +10,7 @@ import { MailModule } from '@/mail/mail.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CartModule } from '@/modules/cart/cart.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
+import { DiscountsModule } from '@/modules/discounts/discounts.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
 import { PaymentsModule } from '@/modules/payments/payments.module';
@@ -37,6 +38,7 @@ import { AppService } from './app.service';
     AuthModule,
     CartModule,
     CategoriesModule,
+    DiscountsModule,
     OrdersModule,
     PaymentsModule,
     ProductsModule,

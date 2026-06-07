@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import type { OrderStatus } from '@repo/types';
 
@@ -47,6 +47,20 @@ export class OrderResponseDto {
   @ApiProperty({ example: 159.98 })
   total!: number;
 
+  @ApiPropertyOptional({
+    description: 'Discount code applied at checkout (if any).',
+    example: 'clcode00000000000000000000',
+    nullable: true,
+  })
+  discountCodeId!: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Amount of the discount in major units (if any).',
+    example: 10.0,
+    nullable: true,
+  })
+  discountAmount!: number | null;
+
   @ApiProperty({ type: () => [OrderItemResponseDto] })
   items!: OrderItemResponseDto[];
 
@@ -62,6 +76,8 @@ export class OrderResponseDto {
     dto.customerId = entity.customerId;
     dto.status = entity.status;
     dto.total = entity.total;
+    dto.discountCodeId = entity.discountCodeId;
+    dto.discountAmount = entity.discountAmount;
     dto.items = (entity.items ?? []).map((i) => OrderItemResponseDto.from(i));
     dto.createdAt = entity.createdAt.toISOString();
     dto.updatedAt = entity.updatedAt.toISOString();

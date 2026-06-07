@@ -12,4 +12,15 @@ export class CreateOrderDto {
   @IsString()
   @MaxLength(500)
   shippingAddress?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Optional discount code applied to the cart subtotal. Resolved + redeemed atomically inside the order create transaction.',
+    example: 'SUMMER10',
+    maxLength: 64,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  discountCode?: string;
 }

@@ -1,16 +1,19 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import { OrderStatus, UserRole } from '@prisma/client';
+import { OrderStatus, type Prisma, UserRole } from '@prisma/client';
 import type { ClsService } from 'nestjs-cls';
 
 import type { UserEntity } from '@/modules/auth/entities/user.entity';
 import type { CartService } from '@/modules/cart/cart.service';
+import type { DiscountsService } from '@/modules/discounts/discounts.service';
 import type { ProductEntity } from '@/modules/products/entities/product.entity';
 import type { ProductsRepository } from '@/modules/products/products.repository';
+import type { PrismaService } from '@/prisma/prisma.service';
 import type { EmailQueue } from '@/queues/emails/email-queue.service';
 
 import {
@@ -53,6 +56,22 @@ const mockCart: jest.Mocked<Pick<CartService, 'getCart' | 'clear'>> = {
   clear: jest.fn(),
 };
 
+const mockDiscounts: jest.Mocked<
+  Pick<DiscountsService, 'validateForSubtotal' | 'redeem'>
+> = {
+  validateForSubtotal: jest.fn(),
+  redeem: jest.fn(),
+};
+
+// PrismaService.$transaction(callback) — invoke the callback with a stub tx
+// object. The OrdersRepository mock ignores the tx anyway.
+const mockPrisma = {
+  $transaction: jest.fn(
+    async <T>(cb: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> =>
+      cb({} as Prisma.TransactionClient),
+  ),
+};
+
 const mockEmailQueue: jest.Mocked<
   Pick<EmailQueue, 'enqueueOrderConfirmation'>
 > = {
@@ -79,12 +98,19 @@ describe('OrdersService', () => {
       mockRepo as unknown as OrdersRepository,
       mockProductsRepo as unknown as ProductsRepository,
       mockCart as unknown as CartService,
+      mockDiscounts as unknown as DiscountsService,
+      mockPrisma as unknown as PrismaService,
       mockEmailQueue as unknown as EmailQueue,
       mockLogger as unknown as LoggerService,
       mockCls as unknown as ClsService,
     );
     jest.clearAllMocks();
     mockCls.getId.mockReturnValue('req-id');
+    // Re-install the default $transaction passthrough after clearAllMocks.
+    mockPrisma.$transaction.mockImplementation(
+      async <T>(cb: (tx: Prisma.TransactionClient) => Promise<T>) =>
+        cb({} as Prisma.TransactionClient),
+    );
   });
 
   describe('create', () => {
@@ -159,15 +185,166 @@ describe('OrdersService', () => {
       const result = await service.create(user, undefined, dto);
 
       expect(mockRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ customerId: 'user-1', total: 25 }),
+        expect.objectContaining({
+          customerId: 'user-1',
+          total: 25,
+          discountCodeId: null,
+          discountAmount: null,
+        }),
+        expect.anything(),
       );
+      expect(mockDiscounts.validateForSubtotal).not.toHaveBeenCalled();
+      expect(mockDiscounts.redeem).not.toHaveBeenCalled();
       expect(mockCart.clear).toHaveBeenCalledWith({
         type: 'user',
         id: 'user-1',
       });
-      // Email moved to markPaid — must not fire here.
       expect(mockEmailQueue.enqueueOrderConfirmation).not.toHaveBeenCalled();
       expect(result).toBe(created);
+    });
+
+    it('applies a valid discountCode: persists discountCodeId/Amount, calls redeem', async () => {
+      mockCart.getCart.mockResolvedValue(
+        createMockCart({
+          items: [
+            createMockCartItem({ productId: 'p1', price: 10, quantity: 2 }),
+          ],
+        }),
+      );
+      mockProductsRepo.findById.mockResolvedValue(
+        createMockProduct({
+          isActive: true,
+          stock: 100,
+        }) as unknown as ProductEntity,
+      );
+      mockDiscounts.validateForSubtotal.mockResolvedValue({
+        code: 'SUMMER10',
+        discountId: 'disc-1',
+        type: 'PERCENT',
+        value: 10,
+        amountApplied: 2,
+        subtotal: 20,
+        total: 18,
+      });
+      const created = createMockOrder({ id: 'o1', total: 18 });
+      mockRepo.create.mockResolvedValue(created);
+
+      await service.create(user, undefined, { discountCode: 'SUMMER10' });
+
+      expect(mockDiscounts.validateForSubtotal).toHaveBeenCalledWith(
+        'SUMMER10',
+        20,
+      );
+      expect(mockRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          total: 18,
+          discountCodeId: 'disc-1',
+          discountAmount: 2,
+        }),
+        expect.anything(),
+      );
+      expect(mockDiscounts.redeem).toHaveBeenCalledWith(
+        'disc-1',
+        'o1',
+        2,
+        expect.anything(),
+      );
+    });
+
+    it('propagates BadRequestException from validateForSubtotal — no order created', async () => {
+      mockCart.getCart.mockResolvedValue(
+        createMockCart({
+          items: [
+            createMockCartItem({ productId: 'p1', price: 10, quantity: 1 }),
+          ],
+        }),
+      );
+      mockProductsRepo.findById.mockResolvedValue(
+        createMockProduct({
+          isActive: true,
+          stock: 100,
+        }) as unknown as ProductEntity,
+      );
+      mockDiscounts.validateForSubtotal.mockRejectedValue(
+        new BadRequestException('Discount code expired'),
+      );
+
+      await expect(
+        service.create(user, undefined, { discountCode: 'OLD' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRepo.create).not.toHaveBeenCalled();
+      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('persists total=0 when discount amount >= subtotal (clamped by service)', async () => {
+      mockCart.getCart.mockResolvedValue(
+        createMockCart({
+          items: [
+            createMockCartItem({ productId: 'p1', price: 5, quantity: 1 }),
+          ],
+        }),
+      );
+      mockProductsRepo.findById.mockResolvedValue(
+        createMockProduct({
+          isActive: true,
+          stock: 100,
+        }) as unknown as ProductEntity,
+      );
+      mockDiscounts.validateForSubtotal.mockResolvedValue({
+        code: 'BIG',
+        discountId: 'disc-2',
+        type: 'AMOUNT',
+        value: 20,
+        amountApplied: 5,
+        subtotal: 5,
+        total: 0,
+      });
+      mockRepo.create.mockResolvedValue(
+        createMockOrder({ id: 'o2', total: 0 }),
+      );
+
+      await service.create(user, undefined, { discountCode: 'BIG' });
+
+      expect(mockRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ total: 0, discountAmount: 5 }),
+        expect.anything(),
+      );
+    });
+
+    it('propagates ConflictException from redeem and does not clear the cart', async () => {
+      mockCart.getCart.mockResolvedValue(
+        createMockCart({
+          items: [
+            createMockCartItem({ productId: 'p1', price: 10, quantity: 1 }),
+          ],
+        }),
+      );
+      mockProductsRepo.findById.mockResolvedValue(
+        createMockProduct({
+          isActive: true,
+          stock: 100,
+        }) as unknown as ProductEntity,
+      );
+      mockDiscounts.validateForSubtotal.mockResolvedValue({
+        code: 'DUP',
+        discountId: 'disc-3',
+        type: 'PERCENT',
+        value: 10,
+        amountApplied: 1,
+        subtotal: 10,
+        total: 9,
+      });
+      mockRepo.create.mockResolvedValue(
+        createMockOrder({ id: 'o3', total: 9 }),
+      );
+      mockDiscounts.redeem.mockRejectedValue(
+        new ConflictException('Discount already redeemed for this order'),
+      );
+
+      await expect(
+        service.create(user, undefined, { discountCode: 'DUP' }),
+      ).rejects.toThrow(ConflictException);
+      expect(mockCart.clear).not.toHaveBeenCalled();
     });
   });
 

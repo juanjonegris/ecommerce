@@ -28,6 +28,8 @@ export function createMockOrder(
   order.customerId = 'user-1';
   order.status = 'PENDING';
   order.total = 59.98;
+  order.discountCodeId = null;
+  order.discountAmount = null;
   order.createdAt = new Date('2026-01-01');
   order.updatedAt = new Date('2026-01-01');
   order.items = [createMockOrderItem()];

@@ -100,19 +100,24 @@ model ProductImage {
 }
 
 model Order {
-  id         String      @id @default(cuid())
-  customerId String?
-  status     OrderStatus @default(PENDING)
-  total      Decimal     @db.Decimal(10, 2)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id             String      @id @default(cuid())
+  customerId     String?
+  status         OrderStatus @default(PENDING)
+  total          Decimal     @db.Decimal(10, 2)
+  discountCodeId String?
+  discountAmount Decimal?    @db.Decimal(10, 2)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  customer User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  items    OrderItem[]
-  payments Payment[]
+  customer     User?                @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+  payments     Payment[]
+  discountCode DiscountCode?        @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
+  redemptions  DiscountRedemption[]
 
   @@index([customerId])
   @@index([status])
+  @@index([discountCodeId])
 }
 
 model OrderItem {
@@ -173,5 +178,26 @@ model DiscountCode {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  orders      Order[]
+  redemptions DiscountRedemption[]
+
   @@index([isActive])
+}
+
+// Per-order audit row written inside the OrdersService.create transaction.
+// `@@unique([discountCodeId, orderId])` makes the insert idempotent: a retried
+// checkout for the same order surfaces P2002 → ConflictException, rolling back
+// the order create.
+model DiscountRedemption {
+  id             String   @id @default(cuid())
+  discountCodeId String
+  orderId        String
+  amountApplied  Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  discountCode DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([discountCodeId, orderId])
+  @@index([orderId])
 }
