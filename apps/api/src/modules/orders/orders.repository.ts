@@ -39,29 +39,62 @@ export class OrdersRepository {
   ) {}
 
   async create(data: CreateOrderData): Promise<OrderEntity> {
-    return this.prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          customerId: data.customerId,
-          status: 'PENDING',
-          total: data.total,
-          items: {
-            create: data.items.map((i) => ({
-              productId: i.productId,
-              quantity: i.quantity,
-              priceAtPurchase: i.price,
-            })),
-          },
+    // Stock is NOT decremented here — inventory is reserved on payment success
+    // via confirmAndDecrementStock. An unpaid PENDING order does not tie up
+    // inventory; expired/abandoned carts simply never confirm.
+    const order = await this.prisma.order.create({
+      data: {
+        customerId: data.customerId,
+        status: 'PENDING',
+        total: data.total,
+        items: {
+          create: data.items.map((i) => ({
+            productId: i.productId,
+            quantity: i.quantity,
+            priceAtPurchase: i.price,
+          })),
         },
+      },
+      include: { items: { include: { product: true } } },
+    });
+
+    return this.toEntity(order);
+  }
+
+  /**
+   * Atomic PENDING → CONFIRMED transition + stock decrement, called from
+   * OrdersService.markPaid when a webhook confirms payment success. Throws
+   * OutOfStockError if any product's stock has dropped below the ordered
+   * quantity since the order was placed; the $transaction rolls back so the
+   * order stays PENDING and the caller can mark the payment FAILED.
+   */
+  async confirmAndDecrementStock(orderId: string): Promise<OrderEntity> {
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { items: true },
+      });
+      if (!order) {
+        throw new Error(`Order "${orderId}" not found`);
+      }
+      for (const item of order.items) {
+        await this.products.decrementStock(item.productId, item.quantity, tx);
+      }
+      const updated = await tx.order.update({
+        where: { id: orderId },
+        data: { status: 'CONFIRMED' },
         include: { items: { include: { product: true } } },
       });
-
-      for (const i of data.items) {
-        await this.products.decrementStock(i.productId, i.quantity, tx);
-      }
-
-      return this.toEntity(order);
+      return this.toEntity(updated);
     });
+  }
+
+  async findCustomerEmail(orderId: string): Promise<string | null> {
+    const row = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { customer: { select: { email: true } } },
+    });
+    return row?.customer?.email ?? null;
   }
 
   async findAll(

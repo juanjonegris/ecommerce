@@ -107,13 +107,8 @@ export class OrdersService {
     // user or guest session.
     if (identity) await this.cart.clear(identity);
 
-    if (user?.email) {
-      await this.emailQueue.enqueueOrderConfirmation({
-        to: user.email,
-        orderId: order.id,
-        total: order.total,
-      });
-    }
+    // No email here — the order is still unpaid (PENDING). The confirmation
+    // email is enqueued from markPaid() once a payment webhook succeeds.
 
     this.logger.log({
       message: 'order.service.create_succeeded',
@@ -122,6 +117,63 @@ export class OrdersService {
       total: order.total,
     });
     return order;
+  }
+
+  /**
+   * Bypasses ownership checks — for use by PaymentsService, which trusts the
+   * payment's own ownership rules. Do NOT expose this through a controller.
+   */
+  async findByIdInternal(id: string): Promise<OrderEntity> {
+    return this.loadOrThrow(id);
+  }
+
+  /**
+   * Called by PaymentsService when a webhook confirms payment success.
+   * Idempotent: a second call for an already-CONFIRMED order is a no-op.
+   * Propagates OutOfStockError so the payment can be marked FAILED.
+   */
+  async markPaid(orderId: string): Promise<OrderEntity> {
+    const requestId = this.cls.getId();
+    const order = await this.loadOrThrow(orderId);
+
+    if (order.status === OrderStatus.CONFIRMED) {
+      this.logger.log({
+        message: 'order.service.mark_paid_noop',
+        requestId,
+        orderId,
+      });
+      return order;
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException(
+        `Order is not payable from status ${order.status}`,
+      );
+    }
+
+    this.logger.log({
+      message: 'order.service.mark_paid_started',
+      requestId,
+      orderId,
+    });
+
+    const updated = await this.repository.confirmAndDecrementStock(orderId);
+
+    const email = await this.repository.findCustomerEmail(orderId);
+    if (email) {
+      await this.emailQueue.enqueueOrderConfirmation({
+        to: email,
+        orderId: updated.id,
+        total: updated.total,
+      });
+    }
+
+    this.logger.log({
+      message: 'order.service.mark_paid_succeeded',
+      requestId,
+      orderId,
+    });
+    return updated;
   }
 
   async findAll(

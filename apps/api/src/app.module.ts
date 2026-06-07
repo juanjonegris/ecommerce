@@ -12,6 +12,7 @@ import { CartModule } from '@/modules/cart/cart.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
 import { HealthModule } from '@/modules/health/health.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
+import { PaymentsModule } from '@/modules/payments/payments.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { QueuesModule } from '@/queues/queues.module';
@@ -37,6 +38,7 @@ import { AppService } from './app.service';
     CartModule,
     CategoriesModule,
     OrdersModule,
+    PaymentsModule,
     ProductsModule,
     MailModule,
     QueuesModule,

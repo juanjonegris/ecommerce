@@ -25,6 +25,20 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum PaymentStatus {
+  REQUIRES_PAYMENT_METHOD
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  MERCADO_PAGO
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -95,6 +109,7 @@ model Order {
 
   customer User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
   items    OrderItem[]
+  payments Payment[]
 
   @@index([customerId])
   @@index([status])
@@ -112,6 +127,38 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  orderId           String
+  provider          PaymentProvider
+  providerPaymentId String
+  status            PaymentStatus   @default(REQUIRES_PAYMENT_METHOD)
+  amount            Decimal         @db.Decimal(10, 2)
+  currency          String          @db.Char(3)
+  clientSecret      String?
+  failureReason     String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, providerPaymentId])
+  @@index([orderId])
+  @@index([status])
+}
+
+// Idempotency log so retried provider webhook deliveries are no-ops.
+model WebhookEvent {
+  id         String          @id @default(cuid())
+  provider   PaymentProvider
+  eventId    String
+  type       String
+  receivedAt DateTime        @default(now())
+
+  @@unique([provider, eventId])
+  @@index([type])
 }
 
 // Either percentOff (0-100) OR amountOff is set, not both. Application enforces

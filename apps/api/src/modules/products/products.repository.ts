@@ -1,6 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma, Product as PrismaProduct } from '@prisma/client';
 
+/** Thrown by ProductsRepository.decrementStock when stock would go negative.
+ *  Inside a $transaction this rolls back every preceding write — the caller
+ *  (orders confirmation) relies on that atomicity. */
+export class OutOfStockError extends Error {
+  constructor(public readonly productId: string) {
+    super(`Insufficient stock for product "${productId}"`);
+    this.name = 'OutOfStockError';
+  }
+}
+
 import type { PaginatedResponse } from '@repo/types';
 
 import { PrismaService } from '@/prisma/prisma.service';
@@ -90,18 +100,23 @@ export class ProductsRepository {
   }
 
   // Inventory belongs to the products domain. The optional tx client lets a
-  // caller (orders creation) decrement stock inside its own $transaction so the
-  // order + items + stock writes stay atomic.
+  // caller (orders confirmation) decrement stock inside its own $transaction so
+  // the status + stock writes stay atomic. The updateMany + stock predicate
+  // prevents over-selling under concurrent confirmations: if another caller has
+  // already reserved the inventory, this row is no longer matched and we throw.
   async decrementStock(
     productId: string,
     quantity: number,
     tx?: Prisma.TransactionClient,
   ): Promise<void> {
     const client = tx ?? this.prisma;
-    await client.product.update({
-      where: { id: productId },
+    const result = await client.product.updateMany({
+      where: { id: productId, stock: { gte: quantity } },
       data: { stock: { decrement: quantity } },
     });
+    if (result.count === 0) {
+      throw new OutOfStockError(productId);
+    }
   }
 
   private toEntity(row: PrismaProduct): ProductEntity {

@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
-    "@repo/types": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -38,6 +37,7 @@
     "@nestjs/websockets": "^11.1.19",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@repo/types": "workspace:*",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.76.4",
     "class-transformer": "^0.5.1",
@@ -53,6 +53,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3",
+    "stripe": "^22.2.0",
     "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "zod": "^4.4.2"

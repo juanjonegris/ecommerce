@@ -17,7 +17,13 @@ import { AppModule } from './app.module';
 const pkg = require('../package.json') as { version: string };
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  // rawBody is required for the payments webhook route to verify the Stripe
+  // signature over the unparsed body. Every other route still receives parsed
+  // JSON via the global ValidationPipe.
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    rawBody: true,
+  });
 
   const logger = app.get<LoggerService>(WINSTON_MODULE_NEST_PROVIDER);
   const cls = app.get(ClsService);

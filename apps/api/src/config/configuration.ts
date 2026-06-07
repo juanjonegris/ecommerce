@@ -20,6 +20,10 @@ export const ConfigSchema = z.object({
   // Empty = dev stub mode: MailService logs the payload instead of sending.
   RESEND_API_KEY: z.string().default(''),
   MAIL_FROM: z.string().default('no-reply@localhost'),
+  // Empty = dev stub mode: PaymentsModule binds StubPaymentProvider instead of Stripe.
+  STRIPE_SECRET_KEY: z.string().default(''),
+  STRIPE_WEBHOOK_SECRET: z.string().default(''),
+  STRIPE_CURRENCY: z.string().length(3).default('usd'),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;

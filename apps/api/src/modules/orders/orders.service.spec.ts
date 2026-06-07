@@ -26,12 +26,22 @@ import type { OrdersRepository } from './orders.repository';
 import { OrdersService } from './orders.service';
 
 const mockRepo: jest.Mocked<
-  Pick<OrdersRepository, 'create' | 'findAll' | 'findById' | 'updateStatus'>
+  Pick<
+    OrdersRepository,
+    | 'create'
+    | 'findAll'
+    | 'findById'
+    | 'updateStatus'
+    | 'confirmAndDecrementStock'
+    | 'findCustomerEmail'
+  >
 > = {
   create: jest.fn(),
   findAll: jest.fn(),
   findById: jest.fn(),
   updateStatus: jest.fn(),
+  confirmAndDecrementStock: jest.fn(),
+  findCustomerEmail: jest.fn(),
 };
 
 const mockProductsRepo: jest.Mocked<Pick<ProductsRepository, 'findById'>> = {
@@ -128,7 +138,7 @@ describe('OrdersService', () => {
       expect(mockRepo.create).not.toHaveBeenCalled();
     });
 
-    it('creates the order, clears the cart, and enqueues the email', async () => {
+    it('creates the order and clears the cart, but does NOT enqueue an email (payment-pending)', async () => {
       mockCart.getCart.mockResolvedValue(
         createMockCart({
           items: [
@@ -155,12 +165,88 @@ describe('OrdersService', () => {
         type: 'user',
         id: 'user-1',
       });
+      // Email moved to markPaid — must not fire here.
+      expect(mockEmailQueue.enqueueOrderConfirmation).not.toHaveBeenCalled();
+      expect(result).toBe(created);
+    });
+  });
+
+  describe('markPaid', () => {
+    it('PENDING → CONFIRMED: decrements stock, enqueues confirmation email', async () => {
+      mockRepo.findById.mockResolvedValue(
+        createMockOrder({ id: 'o1', status: OrderStatus.PENDING }),
+      );
+      const confirmed = createMockOrder({
+        id: 'o1',
+        status: OrderStatus.CONFIRMED,
+        total: 42,
+      });
+      mockRepo.confirmAndDecrementStock.mockResolvedValue(confirmed);
+      mockRepo.findCustomerEmail.mockResolvedValue('buyer@example.com');
+
+      const result = await service.markPaid('o1');
+
+      expect(mockRepo.confirmAndDecrementStock).toHaveBeenCalledWith('o1');
       expect(mockEmailQueue.enqueueOrderConfirmation).toHaveBeenCalledWith({
         to: 'buyer@example.com',
         orderId: 'o1',
-        total: 25,
+        total: 42,
       });
-      expect(result).toBe(created);
+      expect(result).toBe(confirmed);
+    });
+
+    it('already-CONFIRMED is a no-op (idempotent)', async () => {
+      const existing = createMockOrder({
+        id: 'o1',
+        status: OrderStatus.CONFIRMED,
+      });
+      mockRepo.findById.mockResolvedValue(existing);
+
+      const result = await service.markPaid('o1');
+
+      expect(result).toBe(existing);
+      expect(mockRepo.confirmAndDecrementStock).not.toHaveBeenCalled();
+      expect(mockEmailQueue.enqueueOrderConfirmation).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when order is in a non-payable state', async () => {
+      mockRepo.findById.mockResolvedValue(
+        createMockOrder({ id: 'o1', status: OrderStatus.CANCELLED }),
+      );
+
+      await expect(service.markPaid('o1')).rejects.toThrow(BadRequestException);
+      expect(mockRepo.confirmAndDecrementStock).not.toHaveBeenCalled();
+    });
+
+    it('propagates OutOfStockError so the caller can mark payment FAILED', async () => {
+      mockRepo.findById.mockResolvedValue(
+        createMockOrder({ id: 'o1', status: OrderStatus.PENDING }),
+      );
+      const { OutOfStockError } =
+        await import('@/modules/products/products.repository');
+      mockRepo.confirmAndDecrementStock.mockRejectedValue(
+        new OutOfStockError('p1'),
+      );
+
+      await expect(service.markPaid('o1')).rejects.toThrow(OutOfStockError);
+    });
+
+    it('skips the email when no customer email is on the order (guest)', async () => {
+      mockRepo.findById.mockResolvedValue(
+        createMockOrder({
+          id: 'o1',
+          status: OrderStatus.PENDING,
+          customerId: null,
+        }),
+      );
+      mockRepo.confirmAndDecrementStock.mockResolvedValue(
+        createMockOrder({ id: 'o1', status: OrderStatus.CONFIRMED }),
+      );
+      mockRepo.findCustomerEmail.mockResolvedValue(null);
+
+      await service.markPaid('o1');
+
+      expect(mockEmailQueue.enqueueOrderConfirmation).not.toHaveBeenCalled();
     });
   });
 
