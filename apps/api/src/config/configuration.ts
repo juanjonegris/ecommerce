@@ -24,6 +24,17 @@ export const ConfigSchema = z.object({
   STRIPE_SECRET_KEY: z.string().default(''),
   STRIPE_WEBHOOK_SECRET: z.string().default(''),
   STRIPE_CURRENCY: z.string().length(3).default('usd'),
+  // Newsletter — NEWSLETTER_PROVIDER selects the adapter. Empty key forces stub.
+  NEWSLETTER_PROVIDER: z.enum(['mailchimp', 'klaviyo', 'stub']).default('stub'),
+  NEWSLETTER_DOUBLE_OPT_IN: z.coerce.boolean().default(true),
+  MAILCHIMP_API_KEY: z.string().default(''),
+  MAILCHIMP_AUDIENCE_ID: z.string().default(''),
+  MAILCHIMP_WEBHOOK_SECRET: z.string().default(''),
+  KLAVIYO_API_KEY: z.string().default(''),
+  KLAVIYO_LIST_ID: z.string().default(''),
+  KLAVIYO_WEBHOOK_SECRET: z.string().default(''),
+  // Storefront URL — used to build confirmation links in newsletter emails.
+  PUBLIC_WEB_URL: z.url().default('http://localhost:3000'),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;

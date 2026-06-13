@@ -250,3 +250,50 @@ model Message {
 
   @@index([conversationId, createdAt])
 }
+
+// Newsletter subscribers. Local source of truth — provider (Mailchimp/Klaviyo)
+// is mirrored async via BullMQ. `provider` stamps which adapter handled the
+// row so an env swap can't silently re-sync to a different list (D5).
+enum NewsletterStatus {
+  PENDING
+  CONFIRMED
+  UNSUBSCRIBED
+}
+
+enum NewsletterSource {
+  FOOTER
+  CHECKOUT
+  POPUP
+  ADMIN
+  UNKNOWN
+}
+
+enum NewsletterSyncState {
+  SYNCED
+  PENDING_SYNC
+  FAILED
+  NOT_APPLICABLE
+}
+
+model NewsletterSubscriber {
+  id                   String              @id @default(cuid())
+  email                String              @unique
+  status               NewsletterStatus    @default(PENDING)
+  source               NewsletterSource    @default(UNKNOWN)
+  locale               String?             @db.VarChar(8)
+  tags                 String[]            @default([])
+  providerSubscriberId String?
+  provider             String?             @db.VarChar(20)
+  syncState            NewsletterSyncState @default(PENDING_SYNC)
+  lastSyncAt           DateTime?
+  lastSyncError        String?             @db.Text
+  confirmationToken    String?             @unique
+  confirmedAt          DateTime?
+  unsubscribedAt       DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([status])
+  @@index([syncState])
+  @@index([provider])
+}

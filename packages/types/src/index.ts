@@ -3,6 +3,7 @@ export * from './category.types';
 export * from './chat.types';
 export * from './discount-code.types';
 export * from './discount-validation.types';
+export * from './newsletter.types';
 export * from './order.types';
 export * from './pagination.types';
 export * from './payment.types';

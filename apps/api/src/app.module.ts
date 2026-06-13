@@ -13,6 +13,7 @@ import { CategoriesModule } from '@/modules/categories/categories.module';
 import { ChatModule } from '@/modules/chat/chat.module';
 import { DiscountsModule } from '@/modules/discounts/discounts.module';
 import { HealthModule } from '@/modules/health/health.module';
+import { NewsletterModule } from '@/modules/newsletter/newsletter.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
 import { PaymentsModule } from '@/modules/payments/payments.module';
 import { ProductsModule } from '@/modules/products/products.module';
@@ -41,6 +42,7 @@ import { AppService } from './app.service';
     CategoriesModule,
     ChatModule,
     DiscountsModule,
+    NewsletterModule,
     OrdersModule,
     PaymentsModule,
     ProductsModule,
