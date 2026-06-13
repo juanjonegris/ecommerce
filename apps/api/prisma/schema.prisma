@@ -90,15 +90,29 @@ model Product {
   @@index([categoryId])
 }
 
+enum ProductImageStatus {
+  PENDING_UPLOAD
+  READY
+}
+
 model ProductImage {
-  id        String @id @default(cuid())
-  productId String
-  url       String
-  order     Int    @default(0)
+  id         String             @id @default(cuid())
+  productId  String
+  url        String
+  order      Int                @default(0)
+  storageKey String             @unique
+  mimeType   String             @db.VarChar(64)
+  sizeBytes  Int
+  width      Int?
+  height     Int?
+  status     ProductImageStatus @default(PENDING_UPLOAD)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+  @@index([status])
 }
 
 model Order {

@@ -51,7 +51,14 @@ async function main(): Promise<void> {
       categoryId: electronics.id,
       images: {
         create: [
-          { url: 'https://placehold.co/800x800?text=Headphones', order: 0 },
+          {
+            url: 'https://placehold.co/800x800?text=Headphones',
+            order: 0,
+            storageKey: 'seed/headphones-0',
+            mimeType: 'image/jpeg',
+            sizeBytes: 0,
+            status: 'READY',
+          },
         ],
       },
     },
@@ -68,7 +75,16 @@ async function main(): Promise<void> {
       stock: 200,
       categoryId: apparel.id,
       images: {
-        create: [{ url: 'https://placehold.co/800x800?text=Tee', order: 0 }],
+        create: [
+          {
+            url: 'https://placehold.co/800x800?text=Tee',
+            order: 0,
+            storageKey: 'seed/tee-0',
+            mimeType: 'image/jpeg',
+            sizeBytes: 0,
+            status: 'READY',
+          },
+        ],
       },
     },
   });
@@ -85,7 +101,14 @@ async function main(): Promise<void> {
       categoryId: home.id,
       images: {
         create: [
-          { url: 'https://placehold.co/800x800?text=Planter', order: 0 },
+          {
+            url: 'https://placehold.co/800x800?text=Planter',
+            order: 0,
+            storageKey: 'seed/planter-0',
+            mimeType: 'image/jpeg',
+            sizeBytes: 0,
+            status: 'READY',
+          },
         ],
       },
     },

@@ -35,6 +35,24 @@ export const ConfigSchema = z.object({
   KLAVIYO_WEBHOOK_SECRET: z.string().default(''),
   // Storefront URL — used to build confirmation links in newsletter emails.
   PUBLIC_WEB_URL: z.url().default('http://localhost:3000'),
+  // Object storage (S3 / MinIO). Empty access key → StubStorageProvider.
+  S3_ENDPOINT: z.string().default('http://localhost:9000'),
+  S3_ACCESS_KEY: z.string().default(''),
+  S3_SECRET_KEY: z.string().default(''),
+  S3_BUCKET: z.string().default(''),
+  S3_REGION: z.string().default('us-east-1'),
+  S3_PUBLIC_URL: z.string().default(''),
+  S3_FORCE_PATH_STYLE: z.coerce.boolean().default(true),
+  UPLOAD_MAX_BYTES: z.coerce.number().default(5_242_880),
+  UPLOAD_ALLOWED_MIMES: z
+    .string()
+    .default('image/jpeg,image/png,image/webp,image/avif')
+    .transform((v) =>
+      v
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;

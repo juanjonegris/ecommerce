@@ -17,6 +17,7 @@ import { NewsletterModule } from '@/modules/newsletter/newsletter.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
 import { PaymentsModule } from '@/modules/payments/payments.module';
 import { ProductsModule } from '@/modules/products/products.module';
+import { UploadsModule } from '@/modules/uploads/uploads.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { QueuesModule } from '@/queues/queues.module';
 
@@ -46,6 +47,7 @@ import { AppService } from './app.service';
     OrdersModule,
     PaymentsModule,
     ProductsModule,
+    UploadsModule,
     MailModule,
     QueuesModule,
     ThrottlerModule.forRootAsync({
