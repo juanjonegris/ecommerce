@@ -11,5 +11,146 @@
   "Products": {
     "title": "Productos",
     "empty": "No hay productos disponibles. Asegurate de que la API esté corriendo y con datos."
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Panel",
+      "products": "Productos",
+      "categories": "Categorías",
+      "orders": "Órdenes",
+      "discounts": "Descuentos",
+      "newsletter": "Newsletter",
+      "chat": "Chat",
+      "settings": "Configuración",
+      "logout": "Cerrar sesión"
+    },
+    "common": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "confirm": "Confirmar",
+      "loading": "Cargando…",
+      "empty": "Sin resultados",
+      "error": "Algo salió mal",
+      "back": "Volver",
+      "edit": "Editar",
+      "view": "Ver",
+      "create": "Crear",
+      "actions": "Acciones",
+      "search": "Buscar"
+    },
+    "dashboard": {
+      "title": "Panel",
+      "ordersToday": "Órdenes hoy",
+      "revenue30d": "Ingresos (30d)",
+      "lowStock": "Stock bajo",
+      "openChats": "Chats abiertos",
+      "newsletterPending": "Suscriptores pendientes",
+      "recentOrders": "Órdenes recientes",
+      "recentChats": "Chats recientes",
+      "noRecent": "Nada reciente."
+    },
+    "products": {
+      "title": "Productos",
+      "new": "Nuevo producto",
+      "name": "Nombre",
+      "description": "Descripción",
+      "price": "Precio",
+      "stock": "Stock",
+      "category": "Categoría",
+      "active": "Activo",
+      "images": "Imágenes",
+      "uploadImage": "Subir imagen",
+      "reorderHint": "Arrastrá las miniaturas para reordenar",
+      "deleteImage": "Eliminar imagen",
+      "deleteConfirm": "¿Dar de baja este producto? Se puede reactivar luego."
+    },
+    "categories": {
+      "title": "Categorías",
+      "new": "Nueva categoría",
+      "addChild": "Agregar hija",
+      "parent": "Padre",
+      "deleteBlocked": "No se puede eliminar: la categoría tiene hijas o productos."
+    },
+    "orders": {
+      "title": "Órdenes",
+      "id": "ID de orden",
+      "customer": "Cliente",
+      "guest": "Invitado",
+      "total": "Total",
+      "items": "Ítems",
+      "payments": "Pagos",
+      "discount": "Descuento",
+      "timeline": "Línea de tiempo",
+      "status": {
+        "PENDING": "Pendiente",
+        "CONFIRMED": "Confirmada",
+        "SHIPPED": "Enviada",
+        "DELIVERED": "Entregada",
+        "CANCELLED": "Cancelada"
+      }
+    },
+    "discounts": {
+      "title": "Descuentos",
+      "new": "Nuevo descuento",
+      "code": "Código",
+      "percentOff": "% off",
+      "amountOff": "Monto off",
+      "expiresAt": "Vence",
+      "active": "Activo",
+      "redemptionsCount": "{count, plural, =0 {Sin canjes} one {1 canje} other {# canjes}}",
+      "redemptionsNote": "Próximamente: registro completo de canjes.",
+      "oneOf": "Elegí porcentaje off O monto off, no ambos.",
+      "type": "Tipo",
+      "typePercent": "Porcentaje",
+      "typeAmount": "Monto fijo"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "email": "Email",
+      "status": "Estado",
+      "source": "Fuente",
+      "provider": "Proveedor",
+      "syncState": "Sync",
+      "lastSync": "Última sync",
+      "resync": "Forzar resync",
+      "forceUnsubscribe": "Forzar baja",
+      "deleteGdpr": "Eliminar (GDPR)",
+      "deleteConfirm": "¿Eliminar definitivamente este suscriptor? Es un borrado estilo GDPR y no se puede deshacer.",
+      "syncMismatch": "No se puede resync: el proveedor almacenado difiere del proveedor activo."
+    },
+    "chat": {
+      "title": "Chat",
+      "open": "Abierta",
+      "closed": "Cerrada",
+      "reply": "Responder",
+      "closeConversation": "Cerrar conversación",
+      "unread": "Sin leer",
+      "selectConversation": "Seleccioná una conversación para ver los mensajes.",
+      "messagePlaceholder": "Escribí una respuesta…"
+    },
+    "settings": {
+      "title": "Configuración",
+      "readOnly": "Solo lectura — para cambiar estos valores, editá las variables de entorno del fork.",
+      "brand": "Marca",
+      "brandName": "Nombre de marca",
+      "supportEmail": "Email de soporte",
+      "locales": "Idiomas",
+      "providers": "Proveedores",
+      "providerPayment": "Pago",
+      "providerNewsletter": "Newsletter",
+      "providerStorage": "Almacenamiento",
+      "providerSearch": "Búsqueda",
+      "configured": "Configurado",
+      "notConfigured": "Sin configurar"
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "email": "Email",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "invalid": "Email o contraseña inválidos.",
+      "loading": "Iniciando sesión…"
+    }
   }
 }

@@ -11,5 +11,146 @@
   "Products": {
     "title": "Products",
     "empty": "No products available. Make sure the API is running and seeded."
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "categories": "Categories",
+      "orders": "Orders",
+      "discounts": "Discounts",
+      "newsletter": "Newsletter",
+      "chat": "Chat",
+      "settings": "Settings",
+      "logout": "Log out"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "confirm": "Confirm",
+      "loading": "Loading…",
+      "empty": "No results",
+      "error": "Something went wrong",
+      "back": "Back",
+      "edit": "Edit",
+      "view": "View",
+      "create": "Create",
+      "actions": "Actions",
+      "search": "Search"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "ordersToday": "Orders today",
+      "revenue30d": "Revenue (30d)",
+      "lowStock": "Low stock",
+      "openChats": "Open chats",
+      "newsletterPending": "Pending subscribers",
+      "recentOrders": "Recent orders",
+      "recentChats": "Recent chats",
+      "noRecent": "Nothing recent."
+    },
+    "products": {
+      "title": "Products",
+      "new": "New product",
+      "name": "Name",
+      "description": "Description",
+      "price": "Price",
+      "stock": "Stock",
+      "category": "Category",
+      "active": "Active",
+      "images": "Images",
+      "uploadImage": "Upload image",
+      "reorderHint": "Drag thumbnails to reorder",
+      "deleteImage": "Delete image",
+      "deleteConfirm": "Soft-delete this product? It can be reactivated later."
+    },
+    "categories": {
+      "title": "Categories",
+      "new": "New category",
+      "addChild": "Add child",
+      "parent": "Parent",
+      "deleteBlocked": "Cannot delete: category has children or products."
+    },
+    "orders": {
+      "title": "Orders",
+      "id": "Order ID",
+      "customer": "Customer",
+      "guest": "Guest",
+      "total": "Total",
+      "items": "Items",
+      "payments": "Payments",
+      "discount": "Discount",
+      "timeline": "Timeline",
+      "status": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "SHIPPED": "Shipped",
+        "DELIVERED": "Delivered",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "discounts": {
+      "title": "Discounts",
+      "new": "New discount",
+      "code": "Code",
+      "percentOff": "% off",
+      "amountOff": "Amount off",
+      "expiresAt": "Expires",
+      "active": "Active",
+      "redemptionsCount": "{count, plural, =0 {No redemptions} one {1 redemption} other {# redemptions}}",
+      "redemptionsNote": "Full redemption log coming soon.",
+      "oneOf": "Choose either percent off OR amount off, not both.",
+      "type": "Type",
+      "typePercent": "Percentage",
+      "typeAmount": "Fixed amount"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "email": "Email",
+      "status": "Status",
+      "source": "Source",
+      "provider": "Provider",
+      "syncState": "Sync",
+      "lastSync": "Last sync",
+      "resync": "Force resync",
+      "forceUnsubscribe": "Force unsubscribe",
+      "deleteGdpr": "Delete (GDPR)",
+      "deleteConfirm": "Hard-delete this subscriber? This is GDPR-style erasure and cannot be undone.",
+      "syncMismatch": "Cannot resync: stored provider differs from the currently bound provider."
+    },
+    "chat": {
+      "title": "Chat",
+      "open": "Open",
+      "closed": "Closed",
+      "reply": "Reply",
+      "closeConversation": "Close conversation",
+      "unread": "Unread",
+      "selectConversation": "Select a conversation to view messages.",
+      "messagePlaceholder": "Type a reply…"
+    },
+    "settings": {
+      "title": "Settings",
+      "readOnly": "Read-only — change these by editing the fork's environment variables.",
+      "brand": "Brand",
+      "brandName": "Brand name",
+      "supportEmail": "Support email",
+      "locales": "Locales",
+      "providers": "Providers",
+      "providerPayment": "Payment",
+      "providerNewsletter": "Newsletter",
+      "providerStorage": "Storage",
+      "providerSearch": "Search",
+      "configured": "Configured",
+      "notConfigured": "Not configured"
+    },
+    "login": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "invalid": "Invalid email or password.",
+      "loading": "Signing in…"
+    }
   }
 }
