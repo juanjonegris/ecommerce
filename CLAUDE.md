@@ -585,3 +585,33 @@ No real API keys are required for first run — provider modules (Stripe, Resend
 To enable any of the above, add them under `Settings → Secrets and variables → Actions` and reference them in the workflow's `.env` write step via `${{ secrets.<NAME> }}`.
 
 **Branch protection** is configured manually after the workflow lands once. Settings → Branches → Add rule for `main` → require `lint`, `typecheck`, `test`, `e2e`, `build` as required status checks.
+
+---
+
+## 12. Production images
+
+Two production Dockerfiles live in `apps/api/Dockerfile` and `apps/web/Dockerfile`. They use `turbo prune --docker` for a minimal build context and ship slim alpine runner stages.
+
+| Image           | Base             | Runner stage                                                 | Approx size |
+| --------------- | ---------------- | ------------------------------------------------------------ | ----------- |
+| `ecommerce-api` | `node:20-alpine` | `pnpm deploy --prod` flat tree + Prisma client (musl)        | ~300MB      |
+| `ecommerce-web` | `node:20-alpine` | Next.js `output: 'standalone'` traced bundle + static/public | ~180MB      |
+
+**Operator workflow** (from a fresh clone):
+
+```bash
+cp .env.production.example .env.production           # then edit secrets
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+# First boot: the `migrate` one-shot runs `prisma migrate deploy` before api starts.
+# Optional seed for demo data:
+docker compose -f docker-compose.prod.yml run --rm api node_modules/.bin/ts-node prisma/seed.ts
+```
+
+**Coexistence with dev compose**: prod uses project name `ecommerce-prod` (set in `docker-compose.prod.yml`) and `_prod`-suffixed volumes. Postgres/Redis/MinIO are NOT bound to host ports — only api (3001) and web (3000) are. The dev compose can stay running side-by-side.
+
+**Why `migrate` is a one-shot, not on-boot**: there's no automatic rollback if a migration partially applies during a multi-replica rollout. Operator-run migrations via `service_completed_successfully` keep that boundary explicit and the failure mode loud.
+
+**Stub mode preserved**: empty provider keys in `.env.production` cause `apps/api/src/config/configuration.ts` to fall back to stub adapters — same property as CI. First boot works without real Stripe/Resend/Mailchimp keys.
+
+**Image build gotchas codified**: the api Dockerfile sets `ENV DATABASE_URL=postgresql://stub:stub@stub:5432/stub` in the builder stage to satisfy `apps/api/prisma.config.ts` during `prisma generate` (the value is never connected to). The web Dockerfile relies on `output: 'standalone'` plus `outputFileTracingRoot` in `next.config.ts` so the trace covers workspace deps like `@repo/types`; without that the storefront crashes on first request with module-not-found.

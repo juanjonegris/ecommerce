@@ -3,7 +3,8 @@
 // No tenantId column — each fork is its own deployment with its own DB.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 // Prisma 7 requires the connection URL in prisma.config.ts (not here).
