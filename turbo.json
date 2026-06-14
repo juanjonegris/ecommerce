@@ -7,7 +7,20 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["API_URL", "NODE_ENV"]
+      "env": [
+        "API_URL",
+        "NODE_ENV",
+        "STRIPE_SECRET_KEY",
+        "RESEND_API_KEY",
+        "MAILCHIMP_API_KEY",
+        "KLAVIYO_API_KEY",
+        "S3_ACCESS_KEY",
+        "S3_SECRET_KEY",
+        "S3_BUCKET",
+        "NEWSLETTER_PROVIDER",
+        "SEARCH_PROVIDER",
+        "SEARCH_FTS_LANGUAGE"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -30,7 +43,17 @@
         "THROTTLE_TTL",
         "THROTTLE_LIMIT",
         "NODE_ENV",
-        "API_URL"
+        "API_URL",
+        "STRIPE_SECRET_KEY",
+        "RESEND_API_KEY",
+        "MAILCHIMP_API_KEY",
+        "KLAVIYO_API_KEY",
+        "S3_ACCESS_KEY",
+        "S3_SECRET_KEY",
+        "S3_BUCKET",
+        "NEWSLETTER_PROVIDER",
+        "SEARCH_PROVIDER",
+        "SEARCH_FTS_LANGUAGE"
       ]
     }
   }
