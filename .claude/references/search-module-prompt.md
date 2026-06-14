@@ -256,8 +256,8 @@ with a parameterized SQL template. Recommended query (planner to confirm):
     ORDER BY score DESC, p."createdAt" DESC
     LIMIT $4 OFFSET $5;
 
-(`$1` = SEARCH_FTS_LANGUAGE, `$2` = query, `$3` = nullable categoryId,
-`$4` = limit, `$5` = (page-1)_limit). A separate `COUNT(_) … WHERE
+(`$1` = SEARCH*FTS_LANGUAGE, `$2` = query, `$3` = nullable categoryId,
+`$4` = limit, `$5` = (page-1)\_limit). A separate `COUNT(*) … WHERE
 searchVector @@ websearch_to_tsquery(…)`query supplies`total`; run both
 inside `prisma.$transaction([...])` so the storefront sees a consistent
 total / page mapping.

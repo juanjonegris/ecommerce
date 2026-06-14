@@ -6,7 +6,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
         "API_URL",
         "NODE_ENV",
@@ -23,14 +23,37 @@
       ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^build", "^lint"]
     },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+    "typecheck": {
+      "dependsOn": ["^build", "^typecheck"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["apps/api/coverage/**"],
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "REDIS_URL",
+        "JWT_SECRET",
+        "JWT_REFRESH_SECRET",
+        "STRIPE_SECRET_KEY",
+        "RESEND_API_KEY",
+        "MAILCHIMP_API_KEY",
+        "KLAVIYO_API_KEY",
+        "S3_ACCESS_KEY",
+        "S3_SECRET_KEY",
+        "S3_BUCKET",
+        "NEWSLETTER_PROVIDER",
+        "SEARCH_PROVIDER",
+        "SEARCH_FTS_LANGUAGE"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true,
+      "dependsOn": ["^build"],
       "env": [
         "PORT",
         "DATABASE_URL",

@@ -355,15 +355,15 @@ execution report.
   `Authorization: Bearer <token>`, sets `cache: 'no-store'`, returns
   `await res.json() as T`. On other non-2xx throws `Error(\`Admin
   ${path}: \${res.status}\`)`.
-  Then per-domain typed helpers — pick names and shapes from the
-  NestJS controllers verified in Task 1:
-  `getAdminProducts(query)`, `getAdminProduct(id)`,
-  `listCategories()`, `listOrders(query)`, `getOrder(id)`,
-  `listDiscounts(query)`, `getDiscount(id)`, `listSubscribers(query)`,
-  `getRuntimeInfo()`(the settings page — server-side reads
- `process.env`),
-  `listConversationsForAdmin(query)`, `getConversation(id)`,
-  `getMessages(conversationId, cursor?)`.
+ Then per-domain typed helpers — pick names and shapes from the
+ NestJS controllers verified in Task 1:
+ `getAdminProducts(query)`, `getAdminProduct(id)`,
+ `listCategories()`, `listOrders(query)`, `getOrder(id)`,
+ `listDiscounts(query)`, `getDiscount(id)`, `listSubscribers(query)`,
+ `getRuntimeInfo()`(the settings page — server-side reads
+`process.env`),
+ `listConversationsForAdmin(query)`, `getConversation(id)`,
+ `getMessages(conversationId, cursor?)`.
 - **PATTERN**: `apps/web/src/lib/api.ts`.
 - **GOTCHA**: The `AdminAuthError` is what `error.tsx` catches to
   redirect to `/login`. Other errors render as the recoverable

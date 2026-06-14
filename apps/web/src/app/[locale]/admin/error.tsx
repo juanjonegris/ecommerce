@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminAuthError } from '@/lib/admin/api';
+import { AdminAuthError } from '@/lib/admin/auth-error';
 
 interface AdminErrorProps {
   error: Error & { digest?: string };

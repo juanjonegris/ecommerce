@@ -17,19 +17,11 @@ import type {
 
 import { getSessionToken } from '@/lib/auth';
 
+import { AdminAuthError } from './auth-error';
+
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 
-/**
- * Caught by error.tsx → redirect to /login. Throwing this from any admin
- * fetcher signals the session is gone (logged-out or token expired).
- */
-export class AdminAuthError extends Error {
-  static readonly NAME = 'AdminAuthError';
-  constructor(message = 'admin auth failed') {
-    super(message);
-    this.name = AdminAuthError.NAME;
-  }
-}
+export { AdminAuthError };
 
 type QueryValue = string | number | boolean | undefined;
 type QueryMap = Readonly<Record<string, QueryValue>>;

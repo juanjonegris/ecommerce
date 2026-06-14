@@ -57,11 +57,11 @@ White-label e-commerce platform. Turborepo monorepo with Next.js 15 (storefront 
 
 ### Shared (`packages/`)
 
-| Package          | Purpose                                                      |
-| ---------------- | ------------------------------------------------------------ |
-| `@repo/types`    | Pure TypeScript interfaces + Zod schemas. **No decorators.** |
-| `@repo/tsconfig` | Base, Next.js, and NestJS tsconfig presets                   |
-| `@repo/config`   | ESLint + Prettier shared configs                             |
+| Package          | Purpose                                                                                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@repo/types`    | Pure TypeScript interfaces + Zod schemas. **No decorators.** **Built package** — emits CJS + `.d.ts` to `dist/`; consumers resolve via `package.json` `exports`. |
+| `@repo/tsconfig` | Base, Next.js, and NestJS tsconfig presets                                                                                                                       |
+| `@repo/config`   | ESLint + Prettier shared configs                                                                                                                                 |
 
 ### Infrastructure
 
@@ -114,6 +114,21 @@ src/modules/<domain>/
 | Controller | Route, parse request, apply guards, return response | Business logic, Prisma queries      |
 | Service    | Business logic, orchestrate, throw exceptions       | HTTP concerns, direct Prisma access |
 | Repository | Prisma queries, map to domain entities              | Business logic, HTTP concerns       |
+
+### Workspace Package Build Flow
+
+`packages/types` ships **compiled CJS** in `dist/`, not raw `.ts` source. This is required because Node 22's built-in TypeScript loader applies strict ESM-style resolution at runtime (extensionless relative imports like `export * from './cart.types'` throw `ERR_MODULE_NOT_FOUND`), which breaks `nest start` against the api's compiled `dist/main.js`.
+
+| Concern              | Behaviour                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api` runtime   | Compiled `dist/main.js` does `require('@repo/types')` → resolved via `package.json` `exports` → loads `packages/types/dist/index.js` (CJS)                                                   |
+| `apps/api` typecheck | Uses `paths` override in `apps/api/tsconfig.json` to resolve `@repo/types` directly to `packages/types/src/index.ts` — types are live, no rebuild needed for source changes during typecheck |
+| `apps/web` (Next.js) | Resolves via `package.json` `exports` → bundles `dist/index.js`                                                                                                                              |
+| Tests (`ts-jest`)    | `moduleNameMapper` in `apps/api/package.json` maps `@repo/types` to raw source for unit tests                                                                                                |
+
+**Turborepo handles the build automatically.** `turbo.json` declares `^build` as a `dependsOn` for `build`, `dev`, `lint`, and `check-types`, so any turbo-mediated task topologically builds upstream packages first. Use `pnpm dev` (root) or `pnpm dev --filter @repo/api` — both route through turbo. Direct pnpm filter calls like `pnpm --filter @repo/api dev` **bypass turbo** and will fail with `ERR_MODULE_NOT_FOUND` on a fresh clone. If a direct call is needed, run `pnpm build` from the root once first.
+
+**Adding a new shared package** (e.g. `@repo/utils`): mirror `packages/types/package.json` — `main` → `./dist/index.js`, `types` → `./dist/index.d.ts`, `exports` block, `build` script (`tsc`), `files: ["dist"]`. Mirror `packages/types/tsconfig.json` — CommonJS module, Node resolution, `outDir: "./dist"`, `declaration: true`. Turbo picks up the new `build` task automatically.
 
 ### Next.js Routing
 
@@ -494,29 +509,36 @@ export async function addToCartAction(productId: string, quantity: number): Prom
 
 ## 9. Development Commands
 
+**Always route through turbo** so `^build` dependencies (notably `@repo/types`) are resolved automatically. Use `pnpm dev` (root) or `pnpm dev --filter @repo/api`. Direct pnpm filter calls (`pnpm --filter @repo/api dev`) bypass turbo and require a manual `pnpm build` first or they crash with `ERR_MODULE_NOT_FOUND` on `@repo/types`.
+
+**Migrations:** prefer `prisma migrate deploy` for local dev too. The schema declares `searchVector` as `Unsupported("tsvector")?` (a Postgres GENERATED column), and `prisma migrate dev` will re-detect "drift" on every run and emit a broken `ALTER TABLE ... DROP DEFAULT` migration. Use `prisma migrate dev --create-only` then hand-edit if you must.
+
 ```bash
-# Root — all apps
+# Root — turbo-mediated, dependencies handled automatically
 pnpm install                          # Install all dependencies
-pnpm dev                              # Start all apps in dev mode
-pnpm build                            # Build all apps
-pnpm lint                             # Lint all packages
-pnpm typecheck                        # Type-check all packages
+pnpm dev                              # Start all apps in dev mode (builds @repo/types first)
+pnpm dev --filter @repo/api           # Start ONLY the api (still builds @repo/types first)
+pnpm dev --filter @repo/web           # Start ONLY the web app
+pnpm build                            # Build all apps (topological)
+pnpm lint                             # Lint all packages (builds upstream first)
+pnpm typecheck                        # Type-check all packages (builds upstream first)
 pnpm test                             # Run all Jest tests
 pnpm format                           # Prettier format all files
 
-# Backend only
-pnpm --filter api dev                 # Start NestJS dev server (port 3001)
-pnpm --filter api test                # Run backend tests
-pnpm --filter api test:cov            # Run tests with coverage report
-pnpm --filter api prisma:generate     # Regenerate Prisma client
-pnpm --filter api prisma:migrate      # Run pending migrations
-pnpm --filter api prisma:studio       # Open Prisma Studio GUI
-pnpm --filter api db:seed             # Seed database
+# Backend-only — pnpm direct filter (bypasses turbo, requires prior `pnpm build`)
+pnpm --filter @repo/api test          # Run backend tests
+pnpm --filter @repo/api test:cov      # Run tests with coverage report
+pnpm --filter @repo/api prisma:generate # Regenerate Prisma client
+pnpm --filter @repo/api prisma:deploy # Apply pending migrations (use over migrate:dev — see above)
+pnpm --filter @repo/api prisma:studio # Open Prisma Studio GUI
+pnpm --filter @repo/api db:seed       # Seed database
 
-# Frontend only
-pnpm --filter web dev                 # Start Next.js dev server (port 3000)
-pnpm --filter web build               # Production build
-pnpm --filter web test:e2e            # Run Playwright E2E tests
+# Frontend-only — pnpm direct filter
+pnpm --filter @repo/web build         # Production build
+pnpm --filter @repo/web test:e2e      # Run Playwright E2E tests
+
+# Shared packages — build manually if not going through turbo
+pnpm --filter @repo/types build       # Compile types to dist/ (CJS + .d.ts)
 
 # Infrastructure
 docker compose up -d                  # Start all services (PG, Redis, MinIO)
@@ -537,3 +559,29 @@ docker compose down                   # Stop all services
 8. **Import shared types as `@repo/types`.** Never use relative paths across app boundaries. Never put decorators in `packages/types`.
 9. **Check for an existing solution before adding a new package.** Read `package.json` files first. The stack is intentionally complete — most problems are solvable with what is already installed.
 10. **When in doubt, look at how the `products` module does it.** It is the living reference for every pattern in this codebase.
+11. **Always run dev/lint/typecheck via turbo** (`pnpm dev --filter @repo/api`, not `pnpm --filter @repo/api dev`). Workspace packages like `@repo/types` are _built packages_ — direct pnpm filter calls skip the `^build` dependency and crash with `ERR_MODULE_NOT_FOUND`. If you must use a direct filter call, run `pnpm build` from the root first.
+12. **Do not run `prisma migrate dev`** in this repo — the `Product.searchVector` GENERATED column makes Prisma generate a broken `ALTER TABLE ... DROP DEFAULT` migration on every run. Use `prisma migrate deploy` for applying existing migrations, or `prisma migrate dev --create-only` + hand-edit the SQL for new schema work.
+
+---
+
+## 11. CI
+
+Every push and PR to `main` runs `.github/workflows/ci.yml`. Five required status checks: `lint`, `typecheck`, `test`, `e2e`, `build`. The `test` and `e2e` jobs spin up `postgres:16-alpine` + `redis:7-alpine` service containers, apply Prisma migrations via `prisma:deploy` (NEVER `migrate dev` in CI — see §10.12), seed the DB, and run Jest + Playwright.
+
+No real API keys are required for first run — provider modules (Stripe, Resend, Mailchimp, S3) fall back to stub mode when their key env vars are empty (see `apps/api/src/config/configuration.ts`).
+
+**Required GitHub repository secrets:** none for first run.
+
+**Optional secrets** for live-mode provider testing in CI:
+
+| Secret name                                   | Purpose                                                        |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`                           | Real Stripe test-mode key (otherwise StubPaymentProvider runs) |
+| `STRIPE_WEBHOOK_SECRET`                       | Required for live signed webhook verification                  |
+| `RESEND_API_KEY`                              | Real email send instead of log-only stub                       |
+| `MAILCHIMP_API_KEY` + `MAILCHIMP_AUDIENCE_ID` | Live Mailchimp adapter                                         |
+| `KLAVIYO_API_KEY` + `KLAVIYO_LIST_ID`         | Live Klaviyo adapter                                           |
+
+To enable any of the above, add them under `Settings → Secrets and variables → Actions` and reference them in the workflow's `.env` write step via `${{ secrets.<NAME> }}`.
+
+**Branch protection** is configured manually after the workflow lands once. Settings → Branches → Add rule for `main` → require `lint`, `typecheck`, `test`, `e2e`, `build` as required status checks.

@@ -13,4 +13,7 @@ pnpm-lock.yaml
 **/.next/**
 **/dist/**
 **/build/**
+**/next-env.d.ts
 apps/api/prisma/migrations
+apps/web/playwright-report
+apps/web/test-results

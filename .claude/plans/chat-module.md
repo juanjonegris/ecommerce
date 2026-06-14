@@ -365,15 +365,11 @@ guestSession: identity.type === 'guest' ? identity.id : null }`.
 
 - `getOrCreateMyConversation(identity)`:
   1. `assertIdentity`; resolve `{ customerId, guestSession }`.
-  2. `prisma.$transaction(async tx => { … })`:
-     - Try `repo.findOpenConversationByIdentity({ customerId, guestSession }, tx)`.
-       Return if found.
-     - Else `repo.createConversation({ customerId, guestSession }, tx)`,
-       then `repo.createMessage({ conversationId: created.id, sender: 'SYSTEM',
-senderUserId: null, body: 'Welcome! How can we help?' }, tx)`.
-     - Log `chat.service.conversation_created` with requestId, conversationId,
-       identity.type.
-     - Return created.
+  2. `prisma.$transaction(async tx => { … })`: - Try `repo.findOpenConversationByIdentity({ customerId, guestSession }, tx)`.
+     Return if found. - Else `repo.createConversation({ customerId, guestSession }, tx)`,
+     then `repo.createMessage({ conversationId: created.id, sender: 'SYSTEM',
+senderUserId: null, body: 'Welcome! How can we help?' }, tx)`. - Log `chat.service.conversation_created` with requestId, conversationId,
+     identity.type. - Return created.
 - `findMyConversation(identity)` — `assertIdentity`; load latest; throw NotFound
   when none.
 - `listForAdmin({ status?, page, limit })` — pass-through to repo.
