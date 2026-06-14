@@ -10,6 +10,7 @@ import type {
   Order,
   OrderStatus,
   PaginatedResponse,
+  Payment,
   Product,
   ProductImage,
 } from '@repo/types';
@@ -127,6 +128,10 @@ export function listOrders(query: AdminOrdersQuery = {}): Promise<PaginatedRespo
 
 export function getOrder(id: string): Promise<Order> {
   return fetchAdmin<Order>(`/orders/${encodeURIComponent(id)}`);
+}
+
+export function getPaymentsByOrder(orderId: string): Promise<Payment[]> {
+  return fetchAdmin<Payment[]>(`/payments/order/${encodeURIComponent(orderId)}`);
 }
 
 // --- Discounts --------------------------------------------------------------
