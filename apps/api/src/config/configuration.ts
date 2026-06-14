@@ -53,6 +53,18 @@ export const ConfigSchema = z.object({
         .map((s) => s.trim())
         .filter(Boolean),
     ),
+  // Search. SEARCH_PROVIDER picks the adapter (postgres-fts is the MVP;
+  // meilisearch later). SEARCH_FTS_LANGUAGE is free-form because Postgres
+  // FTS configs are extensible (a fork may install custom dictionaries).
+  SEARCH_PROVIDER: z.enum(['postgres-fts', 'stub']).default('postgres-fts'),
+  SEARCH_FTS_LANGUAGE: z.string().default('simple'),
+  SEARCH_MAX_QUERY_LENGTH: z.coerce
+    .number()
+    .int()
+    .min(20)
+    .max(2000)
+    .default(200),
+  SEARCH_HIGHLIGHT_ENABLED: z.coerce.boolean().default(true),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;

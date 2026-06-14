@@ -8,4 +8,5 @@ export * from './order.types';
 export * from './pagination.types';
 export * from './payment.types';
 export * from './product.types';
+export * from './search.types';
 export * from './user.types';

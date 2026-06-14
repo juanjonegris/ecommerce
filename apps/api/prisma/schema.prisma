@@ -85,9 +85,16 @@ model Product {
   images     ProductImage[]
   orderItems OrderItem[]
 
+  // Generated tsvector — column DDL lives in the migration; Prisma can't
+  // express GENERATED ... STORED, so we declare the column as Unsupported
+  // and never reference it from typed Prisma client calls. The provider's
+  // $queryRaw is the only path that touches it. See search-module plan D1.
+  searchVector Unsupported("tsvector")?
+
   @@index([slug])
   @@index([isActive])
   @@index([categoryId])
+  @@index([searchVector], type: Gin)
 }
 
 enum ProductImageStatus {

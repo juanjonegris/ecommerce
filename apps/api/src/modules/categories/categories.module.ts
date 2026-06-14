@@ -10,5 +10,6 @@ import { CategoriesService } from './categories.service';
   imports: [PrismaModule],
   controllers: [CategoriesController],
   providers: [CategoriesService, CategoriesRepository],
+  exports: [CategoriesRepository],
 })
 export class CategoriesModule {}

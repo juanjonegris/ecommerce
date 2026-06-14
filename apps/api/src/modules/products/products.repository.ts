@@ -48,6 +48,17 @@ export class ProductsRepository {
     return row ? this.toEntity(row) : null;
   }
 
+  /** Bulk fetch by id; filters to isActive=true so a just-deactivated row
+   *  doesn't surface to a customer mid-search. Prisma `IN` does NOT preserve
+   *  order — callers re-sort if order matters (see SearchService D7). */
+  async findManyByIds(ids: string[]): Promise<ProductEntity[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.prisma.product.findMany({
+      where: { id: { in: ids }, isActive: true },
+    });
+    return rows.map((r) => this.toEntity(r));
+  }
+
   async findAll(
     query: FindProductsQueryDto,
   ): Promise<PaginatedResponse<ProductEntity>> {
