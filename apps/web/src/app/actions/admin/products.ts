@@ -1,11 +1,12 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 import type { Product } from '@repo/types';
 
+import { PRODUCTS_TAG, productTag } from '@/lib/api';
 import { SESSION_COOKIE } from '@/lib/auth';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
@@ -43,6 +44,19 @@ function fieldErrorsFromZod(
   return out;
 }
 
+/**
+ * After a product write: refresh the admin list and expire the storefront
+ * catalog cache. `apiFetch` tags every list + detail read with PRODUCTS_TAG
+ * (detail reads also carry productTag(slug)). `updateTag` rather than
+ * `revalidateTag(tag, 'max')` so the next storefront request waits for fresh
+ * data instead of serving the stale list one more time.
+ */
+function invalidateCatalog(slug?: string): void {
+  revalidatePath('/[locale]/admin/products', 'page');
+  updateTag(PRODUCTS_TAG);
+  if (slug) updateTag(productTag(slug));
+}
+
 export async function createProductAction(
   _prev: ProductFormState,
   formData: FormData,
@@ -72,7 +86,7 @@ export async function createProductAction(
     return { error: `create failed: ${String(res.status)} ${detail}` };
   }
   const product = (await res.json()) as Product;
-  revalidatePath('/[locale]/admin/products', 'page');
+  invalidateCatalog(product.slug);
   return { fieldErrors: { name: `__created:${product.slug}` } };
   // Caller form keys off fieldErrors.name starting with __created: to redirect.
   // (Server Action redirect()-on-success is awkward with useActionState because
@@ -109,7 +123,7 @@ export async function updateProductAction(
     return { error: `update failed: ${String(res.status)} ${detail}` };
   }
   const product = (await res.json()) as Product;
-  revalidatePath('/[locale]/admin/products', 'page');
+  invalidateCatalog(product.slug);
   revalidatePath(`/[locale]/admin/products/${product.slug}`, 'page');
   return {};
 }
@@ -124,7 +138,7 @@ export async function deleteProductAction(id: string): Promise<void> {
   if (!res.ok && res.status !== 204) {
     throw new Error(`delete failed: ${String(res.status)}`);
   }
-  revalidatePath('/[locale]/admin/products', 'page');
+  invalidateCatalog();
 }
 
 export async function reorderImagesAction(
