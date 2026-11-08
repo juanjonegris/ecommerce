@@ -50,8 +50,6 @@ packages/tsconfig/        tsconfig presets
 .claude/                  rules/ (auto-loaded by path), skills/, commands/, plans/, archive/ (history, not rules)
 ```
 
-`apps/docs`, `packages/ui`, and `packages/typescript-config` are unused Turborepo starter leftovers — don't build on them.
-
 ## Where new code goes
 
 | New thing                      | Where / how                                                                                        |

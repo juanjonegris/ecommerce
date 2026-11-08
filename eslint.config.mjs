@@ -6,19 +6,12 @@
 
 import { config as baseConfig } from '@repo/eslint-config/base';
 import { nextJsConfig } from '@repo/eslint-config/next-js';
-import { config as reactInternalConfig } from '@repo/eslint-config/react-internal';
 
 export default [
-  // Next.js rules for the storefront/admin (and the demo apps that ship with create-turbo)
+  // Next.js rules for the storefront/admin
   ...nextJsConfig.map((c) => ({
     ...c,
-    files: ['apps/web/**/*.{ts,tsx,jsx}', 'apps/docs/**/*.{ts,tsx,jsx}'],
-  })),
-
-  // React rules for internal UI packages (demo packages/ui until it's deleted)
-  ...reactInternalConfig.map((c) => ({
-    ...c,
-    files: ['packages/ui/**/*.{ts,tsx,jsx}'],
+    files: ['apps/web/**/*.{ts,tsx,jsx}'],
   })),
 
   // Default strict base for everything else (config files, scripts, other packages)

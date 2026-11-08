@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 
 /**
  * Strict, type-aware base ESLint flat config for the monorepo.
- * Consumed by next.js, nestjs.js, and react-internal.js.
+ * Consumed by next.js and nestjs.js.
  *
  * Designed for an AI-self-correction feedback loop:
  *   - strictTypeChecked + stylisticTypeChecked surface unsafe code at lint time
