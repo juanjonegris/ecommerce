@@ -25,18 +25,17 @@ test.describe('admin product create', () => {
 
     // createProductAction returns a sentinel that the form turns into a
     // client-side router.push() to /admin/products/[slug]. The slug derives
-    // from the product name — wait for any /admin/products/<slug> URL.
-    await page.waitForURL(/\/en\/admin\/products\/[a-z0-9-]+(?:\?|$)/);
+    // from the product name — wait for any /admin/products/<slug> URL, but
+    // NOT /new: we are already on /new, so a pattern that matches it resolves
+    // immediately and the next goto() races the still-running Server Action.
+    await page.waitForURL(/\/en\/admin\/products\/(?!new(?:\?|$))[a-z0-9-]+(?:\?|$)/);
 
     // Back on the list page, the new product appears.
     await products.gotoList('en');
     await expect(products.table).toContainText(uniqueName);
 
-    // Storefront PLP shows the same product (the home page revalidates on
-    // a 60s timer, but the catalog query uses revalidate:60 — for the
-    // freshly-created row to appear we may need to bypass the cache by
-    // hitting the page with a unique query string. The simpler check: visit
-    // the public list and assert the name is somewhere in the response.
+    // Storefront PLP shows the same product without waiting out its 60s
+    // revalidate window: createProductAction expires the `products` cache tag.
     await page.goto('/en/products');
     await expect(page.getByTestId('product-grid')).toContainText(uniqueName, {
       timeout: 10_000,
