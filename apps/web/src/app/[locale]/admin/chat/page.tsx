@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 
+import { AdminBreadcrumbs } from '@/components/admin/admin-breadcrumbs';
 import { getSessionToken } from '@/lib/auth';
 
 import { ChatInbox } from './chat-inbox';
@@ -23,7 +24,12 @@ export default async function ChatPage({ params }: ChatPageProps): Promise<React
 
   return (
     <div className="flex flex-col h-screen" data-testid="admin-chat-page">
-      <ChatInbox token={token ?? ''} apiUrl={apiUrl} locale={locale} />
+      <ChatInbox
+        token={token ?? ''}
+        apiUrl={apiUrl}
+        locale={locale}
+        breadcrumbs={<AdminBreadcrumbs segments={[{ key: 'chat' }]} />}
+      />
     </div>
   );
 }

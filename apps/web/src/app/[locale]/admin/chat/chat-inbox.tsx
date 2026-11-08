@@ -3,14 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Send, XCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 
 import type { Conversation, Message } from '@repo/types';
 
 import { closeConversationAction, markReadAction, replyAction } from '@/app/actions/admin/chat';
-import { AdminBreadcrumbs } from '@/components/admin/admin-breadcrumbs';
 import { EmptyState } from '@/components/admin/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,8 @@ interface ChatInboxProps {
   token: string;
   apiUrl: string;
   locale: string;
+  /** Rendered by the Server Component page: AdminBreadcrumbs is async and server-only. */
+  breadcrumbs: ReactNode;
 }
 
 interface PaginatedConversations {
@@ -64,7 +65,12 @@ async function fetchMessages(
   return (await res.json()) as Message[];
 }
 
-export function ChatInbox({ token, apiUrl, locale }: ChatInboxProps): React.ReactElement {
+export function ChatInbox({
+  token,
+  apiUrl,
+  locale,
+  breadcrumbs,
+}: ChatInboxProps): React.ReactElement {
   const t = useTranslations('admin.chat');
   const tCommon = useTranslations('admin.common');
   const queryClient = useQueryClient();
@@ -193,7 +199,7 @@ export function ChatInbox({ token, apiUrl, locale }: ChatInboxProps): React.Reac
   return (
     <div className="flex flex-col h-full" data-testid="admin-chat-inbox">
       <div className="p-6 pb-3">
-        <AdminBreadcrumbs segments={[{ key: 'chat' }]} />
+        {breadcrumbs}
         <h1 className="text-3xl font-bold">{t('title')}</h1>
       </div>
       <div className="flex flex-1 min-h-0 border-t">
