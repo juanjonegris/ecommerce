@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 // Page Object Model for the product detail page (PDP).
-// All locators MUST use data-testid per CLAUDE.md §6.
+// All locators MUST use data-testid per .claude/rules/frontend/e2e.md.
 export class ProductPage {
   readonly productName: Locator;
   readonly productPrice: Locator;

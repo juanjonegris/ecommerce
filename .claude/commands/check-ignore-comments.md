@@ -17,7 +17,7 @@ Search every `*.{ts,tsx,mts,cts}` file in the repo for these patterns:
 - `// eslint-disable`, `/* eslint-disable`
 - `// eslint-disable-next-line`, `// eslint-disable-line`
 - `// biome-ignore` _(future-proofing — Biome is not the current linter but is a likely migration target)_
-- `// TODO: fix type` _(CLAUDE.md §1's sanctioned escape hatch)_
+- `// TODO: fix type` _(no longer sanctioned — `CLAUDE.md` hard constraint 1 forbids escape hatches for type errors)_
 
 Use the Grep tool with `output_mode: "content"` and `-n: true` so you have file:line for every hit. Group results per file.
 
@@ -75,7 +75,7 @@ Recognizing these saves time and improves the recommendation quality:
 - **Library types that don't match runtime** — narrow assertion is correct, lib `.d.ts` is wrong. **Usually Keep** until upstream ships fixed types; track via `// @ts-expect-error <issue url>`.
 - **Test files mocking globals or accessing private members** — `apps/api/**/*.spec.ts` may need `eslint-disable @typescript-eslint/no-explicit-any` for mock factories. **Usually Keep** but verify against `apps/api/test/factories/` (the canonical factory pattern uses `Partial<T>` instead of `any`).
 - **`@ts-ignore` without a comment** — no justification, just a silenced error. **Usually Remove** or convert to `@ts-expect-error` (which fails the build if the underlying issue is fixed — a self-cleaning suppression).
-- **`// TODO: fix type`** — sanctioned by CLAUDE.md §1, but the moment it has been there longer than 2 months it usually means "Refactor" not "TODO".
+- **`// TODO: fix type`** — forbidden by `CLAUDE.md` hard constraint 1 (no escape hatches for type errors). **Usually Refactor**: fix the type.
 - **`eslint-disable-next-line` with a specific rule** (e.g., `@typescript-eslint/no-unsafe-assignment`) — more defensible than a blanket disable. **Often Keep** if the line genuinely needs the unsafe op (e.g., interop boundary with `JSON.parse(...)`).
 - **`eslint-disable` blanket at top of file** — almost always **Refactor**. Blanket disables hide future violations too.
 

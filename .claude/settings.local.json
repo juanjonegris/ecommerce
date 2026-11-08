@@ -28,7 +28,8 @@
       "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3001/health/db)",
       "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3001/health/redis)",
       "PowerShell(pnpm view *)",
-      "PowerShell(pnpm install *)"
+      "PowerShell(pnpm install *)",
+      "Skill(validate)"
     ]
   }
 }

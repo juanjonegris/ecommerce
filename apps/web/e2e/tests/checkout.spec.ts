@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { CartPage, ProductListPage, ProductPage } from '../pages/product.page';
 
 // Happy path: PLP → click first product → PDP → add to cart → cart shows item.
-// Uses only data-testid selectors (CLAUDE.md §6).
+// Uses only data-testid selectors (.claude/rules/frontend/e2e.md).
 test.describe('checkout happy path', () => {
   test('add a seeded product to the cart', async ({ page }) => {
     const list = new ProductListPage(page);

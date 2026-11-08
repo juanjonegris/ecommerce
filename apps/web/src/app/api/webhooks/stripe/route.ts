@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// Stripe webhook receiver. The only Route Handler in this app (CLAUDE.md §3).
+// Stripe webhook receiver. The only Route Handler in this app (.claude/rules/frontend/nextjs.md).
 //
 // We DO NOT verify the Stripe signature here — that happens once on the
 // NestJS side so STRIPE_WEBHOOK_SECRET lives in a single process. This handler

@@ -1,159 +1,53 @@
-# Turborepo starter
+# White-label e-commerce platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+NestJS REST API (`apps/api`) + Next.js storefront and admin (`apps/web`) in a pnpm + Turborepo monorepo. Each client gets its own fork and deployment; see `.agents/PRD.md` §5.3 for the white-label strategy. Agent conventions live in `CLAUDE.md` and `.claude/rules/`.
 
-## Using this example
+## Local development
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```bash
+cp .env.example .env
+docker compose up -d                       # Postgres 16, Redis 7, MinIO
+pnpm install
+pnpm --filter @repo/api prisma:deploy
+pnpm --filter @repo/api db:seed
+pnpm dev                                   # api :3001 (Swagger /docs), web :3000
 ```
 
-## What's inside?
+Always run tasks through turbo (`pnpm <task>`, `pnpm dev --filter <pkg>`) so `@repo/types` is built first. All provider keys can stay empty: Stripe, Resend, Mailchimp/Klaviyo, and S3 fall back to stub adapters (`apps/api/src/config/configuration.ts`).
 
-This Turborepo includes the following packages/apps:
+## CI
 
-### Apps and Packages
+`.github/workflows/ci.yml` runs on every push and PR to `main`: `lint`, `typecheck`, `test`, `e2e`, `build`. `test` and `e2e` start Postgres + Redis service containers, apply migrations with `prisma:deploy`, and seed.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+**Required secrets:** none.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+**Optional secrets** for live-mode provider testing (add under Settings → Secrets and variables → Actions, then reference them in the workflow's `.env` write step):
 
-### Utilities
+| Secret                                        | Purpose                                                |
+| --------------------------------------------- | ------------------------------------------------------ |
+| `STRIPE_SECRET_KEY`                           | Real Stripe test-mode key instead of the stub provider |
+| `STRIPE_WEBHOOK_SECRET`                       | Live signed webhook verification                       |
+| `RESEND_API_KEY`                              | Real email send instead of the log-only stub           |
+| `MAILCHIMP_API_KEY` + `MAILCHIMP_AUDIENCE_ID` | Live Mailchimp adapter                                 |
+| `KLAVIYO_API_KEY` + `KLAVIYO_LIST_ID`         | Live Klaviyo adapter                                   |
 
-This Turborepo has some additional tools already setup for you:
+**Branch protection** (manual, once): Settings → Branches → rule for `main` → require `lint`, `typecheck`, `test`, `e2e`, `build`.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Production images
 
-### Build
+| Image           | Dockerfile            | Runner stage                                          | Approx size |
+| --------------- | --------------------- | ----------------------------------------------------- | ----------- |
+| `ecommerce-api` | `apps/api/Dockerfile` | `pnpm deploy --prod` flat tree + Prisma client (musl) | ~300 MB     |
+| `ecommerce-web` | `apps/web/Dockerfile` | Next.js `output: 'standalone'` bundle + static/public | ~180 MB     |
 
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+cp .env.production.example .env.production       # then fill in secrets
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+# Optional demo data:
+docker compose -f docker-compose.prod.yml run --rm api node_modules/.bin/ts-node prisma/seed.ts
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- The one-shot `migrate` service runs `prisma migrate deploy` before `api` starts. Migrations are operator-run, not on-boot, because a partially applied migration has no automatic rollback during a multi-replica rollout.
+- The prod stack uses project name `ecommerce-prod` and `_prod` volumes, and binds only ports 3000 and 3001, so it can run beside the dev compose.
+- Empty provider keys in `.env.production` keep the stub adapters, so first boot works without real Stripe/Resend/Mailchimp keys.

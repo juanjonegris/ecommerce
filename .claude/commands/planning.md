@@ -48,9 +48,9 @@ Use specialized subagents in parallel when beneficial:
 - Search for similar implementations in the codebase
 - Identify coding conventions (naming, file organization, error handling, logging)
 - Document reusable code, utilities, and anti-patterns to avoid
-- Check `CLAUDE.md` (root + per-app) for project-specific rules
+- Read root `CLAUDE.md` plus the `.claude/rules/` files for every affected area (backend, data, frontend, e2e, infra) — path-scoped rules only auto-load when a matching file is opened, so read them explicitly while planning
 - For new NestJS modules, mirror the canonical reference: `apps/api/src/modules/products/`
-  (controller / service / repository / dto/ / entities/ / specs — 9-file structure)
+  (provider-port integrations mirror `apps/api/src/modules/payments/`; see `.claude/rules/backend/nestjs-modules.md`)
 
 **2. Dependency & Integration Analysis**
 
@@ -58,7 +58,7 @@ Use specialized subagents in parallel when beneficial:
 - Understand how libraries are integrated (imports, configs, versions)
 - Map integration points with existing files
 - Backend integration points: `app.module.ts` registration, Prisma schema + migrations, guards, BullMQ queues, WebSocket gateways, Swagger decorators
-- Frontend integration points: `app/[locale]/...` routes, server actions in `app/actions/`, middleware (tenant resolution), `next-intl` messages, TanStack Query keys, Zustand stores
+- Frontend integration points: `app/[locale]/...` routes, server actions in `app/actions/`, `next-intl` messages, TanStack Query keys, Zustand stores
 - Shared types: extend `@repo/types` (pure interfaces only — never put `class-validator` decorators there)
 
 **3. Testing Patterns**
@@ -69,9 +69,9 @@ Use specialized subagents in parallel when beneficial:
 
 **Testing Note (ecommerce-specific):**
 
-- Backend: Jest, co-located `*.spec.ts` next to source. 80% coverage threshold. Use factories from `apps/api/test/factories/` (e.g. `createMockProduct()`) — never hardcode test data inline. Pattern reference: `apps/api/src/modules/products/products.service.spec.ts`. Run with `pnpm --filter api test`.
-- Frontend E2E: Playwright with Page Object Model in `apps/web/e2e/pages/` and tests in `apps/web/e2e/tests/`. Use `data-testid` selectors only — no CSS selectors. Run with `pnpm --filter web test:e2e`.
-- Frontend unit tests: not standardized in `CLAUDE.md`. Do not invent a setup unless the feature demands it; if you do, raise it as an architectural decision before proceeding.
+- Backend: Jest, co-located `*.spec.ts` next to source. 80% coverage threshold. Use factories from `apps/api/test/factories/` (e.g. `createMockProduct()`) — never hardcode test data inline. Pattern reference: `apps/api/src/modules/products/products.service.spec.ts`. Run with `pnpm test` (or `pnpm --filter @repo/api test -- <pattern>` for one spec).
+- Frontend E2E: Playwright with Page Object Model in `apps/web/e2e/pages/` and tests in `apps/web/e2e/tests/`. Use `data-testid` selectors only — no CSS selectors. Run with `pnpm --filter @repo/web test:e2e`.
+- Frontend unit tests: not standardized in this repo. Do not invent a setup unless the feature demands it; if you do, raise it as an architectural decision before proceeding.
 
 **Clarify Ambiguities:**
 
@@ -88,7 +88,6 @@ Think deeply about:
 - What could go wrong? (Edge cases, race conditions, errors)
 - How will this be tested comprehensively?
 - Are there performance or security considerations?
-- Multi-tenancy implications: does every new table need `tenantId` + `@@index([tenantId])`? Does the Prisma `$extends` tenant-injection cover this path, or is it a raw query / `$transaction` that bypasses it?
 - Choose between alternative approaches with clear rationale
 
 ---
@@ -154,12 +153,12 @@ So that <benefit/value>
 
 <Specific patterns extracted from codebase — include actual code examples from the project>
 
-- **Naming Conventions**: kebab-case files, PascalCase classes/components, camelCase methods/hooks (CLAUDE.md §4)
-- **Layer Separation (NestJS)**: Controller → Service → Repository. No Prisma in services. No business logic in controllers. (CLAUDE.md §3)
-- **Server Components by default**: only add `"use client"` for browser APIs, event handlers, or hooks (CLAUDE.md §1)
-- **DTOs implement `@repo/types` interfaces** and add `class-validator` + `@ApiProperty` decorators (CLAUDE.md §7)
-- **Logging**: structured JSON via `nest-winston` with `requestId`, `module`, `operation` fields (CLAUDE.md §5)
-- **Error Handling**: NestJS exception classes — `NotFoundException`, `BadRequestException`, `UnauthorizedException`, `ForbiddenException`, `ConflictException` (CLAUDE.md §7)
+- **Naming Conventions**: kebab-case files, PascalCase classes/components, camelCase methods/hooks (`.claude/rules/backend/nestjs-modules.md`, `.claude/rules/frontend/nextjs.md`)
+- **Layer Separation (NestJS)**: Controller → Service → Repository. No Prisma in services. No business logic in controllers. (`.claude/rules/backend/nestjs-modules.md`)
+- **Server Components by default**: only add `"use client"` for browser APIs, event handlers, or hooks (`.claude/rules/frontend/nextjs.md`)
+- **DTOs implement `@repo/types` interfaces** and add `class-validator` + `@ApiProperty` decorators (`.claude/rules/backend/dtos-contracts.md`)
+- **Logging**: dot-namespaced `{domain}.{component}.{verb}_{state}` events with `requestId` (`.claude/rules/backend/logging.md`)
+- **Error Handling**: NestJS exception classes — `NotFoundException`, `BadRequestException`, `UnauthorizedException`, `ForbiddenException`, `ConflictException` (`.claude/rules/backend/nestjs-modules.md`)
 
 ---
 
@@ -220,7 +219,7 @@ Execute every task in order, top to bottom. Each task is atomic and independentl
 
 ### Edge Cases
 
-<Specific edge cases that must be tested — multi-tenant isolation, auth/RBAC, validation failures, concurrent updates>
+<Specific edge cases that must be tested — auth/RBAC, validation failures, concurrent updates>
 
 ---
 
@@ -237,13 +236,6 @@ pnpm lint
 ```
 ````
 
-Or scoped:
-
-```bash
-pnpm --filter api lint
-pnpm --filter web lint
-```
-
 ### Level 2: Type Check (REQUIRED — hard gate)
 
 All packages:
@@ -252,29 +244,22 @@ All packages:
 pnpm typecheck
 ```
 
-Or scoped:
-
-```bash
-pnpm --filter api typecheck
-pnpm --filter web typecheck
-```
-
 ### Level 3: Unit Tests (backend)
 
 ```bash
-pnpm --filter api test
+pnpm test
 ```
 
 For coverage report:
 
 ```bash
-pnpm --filter api test:cov
+pnpm --filter @repo/api test:cov
 ```
 
 ### Level 4: E2E Tests (frontend)
 
 ```bash
-pnpm --filter web test:e2e
+pnpm --filter @repo/web test:e2e
 ```
 
 If tests fail due to missing infra (DB, Redis, MinIO), bring services up first:
@@ -285,7 +270,7 @@ docker compose up -d
 
 ### Level 5: Manual Validation
 
-<Feature-specific: describe what to manually test in the browser, via Swagger at `/api/docs`, or with Postman>
+<Feature-specific: describe what to manually test in the browser, via Swagger at `http://localhost:3001/docs`, or with Postman>
 
 ---
 

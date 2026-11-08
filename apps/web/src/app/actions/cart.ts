@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 
 // Stub Server Action — the NestJS /cart/items endpoint is not implemented yet.
-// Wire-frame matches CLAUDE.md §8 Pattern 2.
+// Wire-frame matches the Server Action pattern in .claude/rules/frontend/nextjs.md.
 export async function addToCartAction(productId: string, quantity: number): Promise<void> {
   const token = (await cookies()).get('session')?.value;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };

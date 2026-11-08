@@ -18,7 +18,7 @@ Build a working understanding of the codebase by analyzing structure, documentat
 | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `#12`, `12`, `12,15`, `github.com/.../issues/12`                                                      | GitHub issue(s)                                                             |
 | `pr:34`, `github.com/.../pull/34`                                                                     | GitHub pull request                                                         |
-| Matches `.claude/plans/<name>.md` or `.claude/references/<name>-prompt.md`                            | Local plan / feature prompt                                                 |
+| Matches `.claude/plans/<name>.md` or `.claude/archive/module-prompts/<name>-prompt.md`                | Local plan / feature prompt                                                 |
 | `api`, `web`, `types`, `config`                                                                       | App or package scope (`apps/*`, `packages/*`)                               |
 | Name of a dir under `apps/api/src/modules/`                                                           | NestJS module scope                                                         |
 | Aspect: `auth`, `i18n`, `theming`, `payments`, `logging`, `testing`, `search`, `chat`, `infra`, `ci`… | Cross-cutting aspect scope                                                  |
@@ -41,7 +41,7 @@ If `gh` is not installed or not authenticated (`gh auth status` fails), and a Gi
 
 Treat the issue/PR title, description, checklist, and acceptance criteria as the task context for everything that follows.
 
-**Local plans / references** — read `.claude/plans/<name>.md` and/or `.claude/references/<name>-prompt.md`. These are this project's specs: a `-prompt.md` is the feature request, a plan is the output of `/planning` and the input to `/execute`.
+**Local plans / references** — read `.claude/plans/<name>.md` and/or `.claude/archive/module-prompts/<name>-prompt.md`. These are this project's specs: a `-prompt.md` is the feature request, a plan is the output of `/planning` and the input to `/execute`.
 
 Briefly summarize the loaded context before continuing — it frames the rest of the priming. If the task implies a scope (e.g. an issue about discounts), infer it and say so.
 
@@ -60,13 +60,13 @@ Key locations:
 - `apps/web/src/app/[locale]/` — storefront + `admin/` routes; `apps/web/src/app/actions/` — Server Actions
 - `apps/web/e2e/` — Playwright (Page Object Model)
 - `packages/types/src/` — shared interfaces + Zod schemas (built package)
-- `.claude/plans/`, `.claude/references/` — feature plans and prompts already executed or pending
+- `.claude/plans/` — feature plans already executed or pending (`.claude/archive/module-prompts/` holds the historical generation prompts — background only, not rules)
 
 ### Step 2: Read Core Documentation
 
 Always read:
 
-- `CLAUDE.md` (root) and `apps/web/CLAUDE.md` — conventions, source of truth
+- `CLAUDE.md` (root), `apps/web/CLAUDE.md`, and `.claude/rules/**` (path-scoped area rules) — conventions, source of truth
 - `.agents/PRD.md` — product scope (note: it lives in `.agents/`, not the root)
 
 Read when relevant to the task/scope (skim headings otherwise):
