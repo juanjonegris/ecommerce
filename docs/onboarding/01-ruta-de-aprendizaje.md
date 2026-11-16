@@ -124,7 +124,7 @@ Documento para entender las tecnologías de este repositorio, ordenadas de lo b�
 
 - **Dónde verlo:** `apps/web/src/components/add-to-cart-button.tsx` (lo más simple), `apps/web/src/app/[locale]/login/login-form.tsx` (`useActionState`).
 - **Recursos:**
-  - [React — Quick Start](https://react.dev/learn) (oficial)
+  - [React — Quick Start](https://react.dev/learn) (oficial) Updating the screen
   - [Thinking in React](https://react.dev/learn/thinking-in-react) (oficial)
   - [Understanding between Angular & React — Lifecycle](https://itnext.io/understanding-between-angular-react-part2-lifecycle-hooks-2a08e91f92b8) y [Services & Context API](https://itnext.io/understanding-between-angular-react-part-3-services-context-api-aa8d2dcfb3a3) (artículos comparativos)
 
