@@ -1,12 +1,12 @@
-# Ticket workflow rules
+# Story workflow rules
 
-Cross-cutting rules the agent applies regardless of which command is running. These apply to **every** ticket command.
+Cross-cutting rules the agent applies regardless of which command is running. These apply to **every** story command.
 
 ---
 
 ## Always read LOGS.md first
 
-When working on any feature, read `LOGS.md` in the relevant spec folder before doing anything else. It is the single source of truth for current state — what's been done, what was decided, what's next. Never skip it, even when "just looking" at one specific file. An entry named by a later `Corrects:` is superseded: go by the correction, not the entry.
+When working on any feature, read `LOGS.md` in the relevant story folder before doing anything else. It is the single source of truth for current state — what's been done, what was decided, what's next. Never skip it, even when "just looking" at one specific file. An entry named by a later `Corrects:` is superseded: go by the correction, not the entry.
 
 ---
 
@@ -38,13 +38,13 @@ Never continue into the next command's work. Hand off and wait for the user to r
 
 - **Living: `SPEC.md`, `PLAN.md`.** They state what should be true now. An edit rewrites the affected sections and never narrates what they replaced. A decision may cite the change entry behind it (`LOGS.md #<n>`). Every edit has a change entry whose `Impact:` names the file and the sections updated (the step's own change entry counts). Once one of `PLAN.md`'s **Open questions** is answered, remove it from there (write `none` once it's empty).
 - **Who updates living artifacts.** Any step that makes the work contradict `SPEC.md` or `PLAN.md` updates it in that step. A `scope-change` updates `SPEC.md`, and `PLAN.md` if it exists.
-- **Records: `IMPLEMENTATION-SUMMARY.md`, `REVIEW.md`.** `/implement` writes `IMPLEMENTATION-SUMMARY.md` and `/review` writes `REVIEW.md` on each pass; other commands only append to them. `/fix` appending its Fix Summary to `REVIEW.md` is such an append. `/fix` and changes between commands add each file they touch to `IMPLEMENTATION-SUMMARY.md` under **Changes after implementation** (replacing its `None`) as ``- `<path>` — <what changed> (<source>)``, where `<source>` is `see change entry #<n>` or `fix <codes>`.
+- **Records: `IMPLEMENTATION-SUMMARY.md`, `REVIEW.md`.** `/story-implement` writes `IMPLEMENTATION-SUMMARY.md` and `/story-review` writes `REVIEW.md` on each pass; other commands only append to them. `/story-fix` appending its Fix Summary to `REVIEW.md` is such an append. `/story-fix` and changes between commands add each file they touch to `IMPLEMENTATION-SUMMARY.md` under **Changes after implementation** (replacing its `None`) as ``- `<path>` — <what changed> (<source>)``, where `<source>` is `see change entry #<n>` or `fix <codes>`.
 
 ---
 
 ## Changes between commands
 
-Outside `/implement` and `/fix`, don't edit source files on your own. When the user asks for a change between commands:
+Outside `/story-implement` and `/story-fix`, don't edit source files on your own. When the user asks for a change between commands:
 
 - **A change that needs planning** (a design decision, a change to the plan's architecture, work across many files), or any change before `IMPLEMENTATION-SUMMARY.md` exists: update `SPEC.md` or `PLAN.md` per **Artifact ownership**, and hand off to `/story-plan <id>` if there's no `PLAN.md` yet, otherwise to `/story-implement <id>`.
 - **Any other change**: make it in this session, update `SPEC.md` or `PLAN.md` per **Artifact ownership** if the change contradicts them, and log a change entry. Add each file it touches to `IMPLEMENTATION-SUMMARY.md` per **Artifact ownership**, citing that entry, then hand off to `/story-review <id>`.
@@ -53,7 +53,7 @@ Outside `/implement` and `/fix`, don't edit source files on your own. When the u
 
 ## Logging discipline
 
-While working on any spec, append **change entries** to the corresponding `LOGS.md` whenever a meaningful event happens mid-session — not just when a command completes.
+While working on any story, append **change entries** to the corresponding `LOGS.md` whenever a meaningful event happens mid-session — not just when a command completes.
 
 ### When to log
 
@@ -73,7 +73,7 @@ Routine work creates noise — do not log it:
 
 ## Reports and vocabulary
 
-Every fixed value in the ticket workflow — command statuses, result statuses, change types and triggers, severities, verdicts, fix modes — is defined once, in [`vocabulary`](./vocabulary.md). Commands use those values exactly; a value that isn't on its list is an error, never something to coerce.
+Every fixed value in the story workflow — command statuses, result statuses, change types and triggers, severities, verdicts, fix modes — is defined once, in [`vocabulary`](./vocabulary.md). Commands use those values exactly; a value that isn't on its list is an error, never something to coerce.
 
 Every final report follows [`the result format`](./result-format.md), in markdown.
 
@@ -83,22 +83,22 @@ Every final report follows [`the result format`](./result-format.md), in markdow
 
 ## Path conventions
 
-Two roots, never mixed.
+There are two roots, and they are never mixed. Both are relative to the project root (written `${CLAUDE_PROJECT_DIR}` in skills).
 
-**Plugin files** ship with the `sb` plugin (devin-config), relative to the plugin root:
+**Workflow files** are the harness, in `.claude/`:
 
-| Location                  | Purpose                                                                                                                                                     |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared/story/rules.md`   | This file                                                                                                                                                   |
-| `shared/story/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `story-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md` |
-| `skills/story-<command>/` | One skill per command, invoked as `/story-<command>`                                                                                                        |
-| `agents/`                 | Subagents, dispatched as `story-architect`, `story-implementer`, `story-reviewer`. See [`delegated work`](./delegated-work.md)                              |
+| Location                          | Purpose                                                                                                                                                     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/shared/story/rules.md`   | This file                                                                                                                                                   |
+| `.claude/shared/story/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `story-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md` |
+| `.claude/skills/story-<command>/` | One skill per command, invoked as `/story-<command>`                                                                                                        |
+| `.claude/agents/story-*.md`       | The subagents `story-architect`, `story-implementer` and `story-reviewer`, dispatched with the Agent tool. See [`delegated work`](./delegated-work.md)      |
 
-**Project files** are the work product, in the developer's vault (rule `sb-vault`), outside every repo:
+**Story files** are the work product, committed with the code in `.agents/stories/`:
 
-| Location                                                                       | Purpose                                                                                      |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `.agents/stories/config.yml`                                                   | Project config, created by `/story-init`. Every key is documented in [`config`](./config.md) |
-| `.agents/stories/<TICKET-ID>-<slug>/`, `.agents/stories/<repo>-<code>-<slug>/` | Per-feature work product (created by `/story-spec`)                                          |
+| Location                                                           | Purpose                                                                                           |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `.agents/stories/config.yml`                                       | Project config, created by `/story-init`. Every key is documented in [`config`](./config.md)      |
+| `.agents/stories/GH-<n>-<slug>/`, `.agents/stories/<code>-<slug>/` | One folder per story, created by `/story-spec`. See [`story identifiers`](./story-identifiers.md) |
 
-`<vault>` is `~/.sb/sbweb/` resolved to its full path with the shell (PowerShell `$env:USERPROFILE\.sb\sbweb`, POSIX `$HOME/.sb/sbweb`). Always read and write project files through that full path.
+Story folders are committed, so never put secrets, credentials or customer data in one, `refs/` included. Images and PDFs in `refs/` are gitignored and stay on the local machine.

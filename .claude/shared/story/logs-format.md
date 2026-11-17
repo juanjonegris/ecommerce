@@ -9,7 +9,7 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 ## Required structure
 
 ```
-## #<n> — <YYYY-MM-DD HH:MM:SS> — /<command> <status>
+## #<n> — <YYYY-MM-DD HH:MM:SS> — /story-<command> <status>
 - <field>: <value>
 - <field>: <value>
 - ...
@@ -18,8 +18,8 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 
 ## Rules
 
-1. **Heading** — `H2` (`##`), exact format: `#<n> — <YYYY-MM-DD HH:MM:SS> — /<command> <status>`
-   - `#<n>` is the entry's id: the number of `## ` headings in `LOGS.md` plus 1. Never write one from memory or work it out from earlier entries. Get it from the shell, with `<log>` the spec's `LOGS.md` path:
+1. **Heading** — `H2` (`##`), exact format: `#<n> — <YYYY-MM-DD HH:MM:SS> — /story-<command> <status>`
+   - `#<n>` is the entry's id: the number of `## ` headings in `LOGS.md` plus 1. Never write one from memory or work it out from earlier entries. Get it from the shell, with `<log>` the story's `LOGS.md` path:
 
      ```
      # POSIX
@@ -55,7 +55,7 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 | `Deviations from plan`                 | `no`, or `yes — see change entries above`                                                                                                                |
 | `Known issues`, `New issues found`     | `no`, or `yes — <note>`                                                                                                                                  |
 | `Files touched`                        | comma-separated paths, or `none`                                                                                                                         |
-| `Source`                               | a ticket id, or `none`                                                                                                                                   |
+| `Source`                               | an issue id (`GH-<n>`), or `none`                                                                                                                        |
 | `Mode`                                 | a fix mode from `vocabulary.md`                                                                                                                          |
 | `Verdict`                              | a verdict from `vocabulary.md` that is valid for the command                                                                                             |
 | `Minor fixed`                          | a count, or `skipped — not in scope`                                                                                                                     |
@@ -68,16 +68,16 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 
 These two have the same fields whichever command wrote them.
 
-### `/<command> paused`
+### `/story-<command> paused`
 
 - Blocked on (one line — what needs the user's input)
 - Progress (one line — what's finished so far, or `none`)
 - Files touched (comma-separated paths, or `none`)
 - Next step (`answer the open questions, then re-run /story-<command> <id>`)
 
-Written by `/plan` and `/implement` when their subagent returns `needs-input`. The user's answers follow as `decision` / `deviation` / `scope-change` change entries, and a re-run picks up from there. An answer the user can't give yet starts its `What:` with the `not-answered-yet:` marker.
+Written by `/story-plan` and `/story-implement` when their subagent returns `needs-input`. The user's answers follow as `decision` / `deviation` / `scope-change` change entries, and a re-run picks up from there. An answer the user can't give yet starts its `What:` with the `not-answered-yet:` marker.
 
-### `/<command> failed`
+### `/story-<command> failed`
 
 - Reason (one line)
 - Next step (`re-run /story-<command> <id>`, or what to fix first)
@@ -90,14 +90,14 @@ Written when a subagent returns `error` or a malformed result. No artifact is wr
 
 Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave it out when there are none.
 
-### `/spec completed`
+### `/story-spec completed`
 
 - Feature
-- Source (ticket ID or `none`)
+- Source (issue id or `none`)
 - Key decisions
 - Next step
 
-### `/plan completed`
+### `/story-plan completed`
 
 - Approach
 - Key decisions
@@ -105,7 +105,7 @@ Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave i
 - Concerns (count or `none`)
 - Next step
 
-### `/implement completed`
+### `/story-implement completed`
 
 - Summary
 - Files created (count)
@@ -114,7 +114,7 @@ Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave i
 - Known issues (`yes — <note>` or `no`)
 - Next step
 
-### `/review completed`
+### `/story-review completed`
 
 - Blockers (count)
 - Major (count)
@@ -124,7 +124,7 @@ Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave i
 - Verdict (`fix-needed` or `approved`)
 - Next step (per **Review verdict** in `vocabulary.md`)
 
-### `/fix completed`
+### `/story-fix completed`
 
 - Mode (`auto`, `plan`, or `interactive`)
 - Blockers fixed (count)
@@ -141,7 +141,7 @@ Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave i
 
 Between command entries, the agent appends **change entries** whenever a meaningful event happens mid-session: decisions, deviations from the plan, scope changes, blockers, or corrections. They are the canonical record of in-flow events — completion entries reference them rather than restating them.
 
-Heading uses `change` instead of `/<command> <status>`:
+Heading uses `change` instead of `/story-<command> <status>`:
 
 ```markdown
 ## #<n> — <YYYY-MM-DD HH:MM:SS> — change
@@ -161,27 +161,27 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 ## Example
 
 ```markdown
-## #1 — 2026-04-23 09:14:22 — /spec completed
+## #1 — 2026-04-23 09:14:22 — /story-spec completed
 
 - Feature: account creation with excluded from net worth toggle
-- Source: PROJ-42
+- Source: GH-42
 - Key decisions: toggle defaults to false
-- Next step: /story-plan PROJ-42
+- Next step: /story-plan GH-42
 
-## #2 — 2026-04-23 11:47:03 — /plan completed
+## #2 — 2026-04-23 11:47:03 — /story-plan completed
 
 - Approach: new boolean field on accounts table + UI toggle in form
 - Key decisions: reuse existing form component
 - Open questions: none
 - Concerns: none
-- Next step: /story-implement PROJ-42
+- Next step: /story-implement GH-42
 
-## #3 — 2026-04-23 14:22:18 — /implement paused
+## #3 — 2026-04-23 14:22:18 — /story-implement paused
 
 - Blocked on: whether archived accounts count toward net worth
 - Progress: form component and schema change written
 - Files touched: src/accounts/AccountForm.tsx, db/schema/0042_archived.sql
-- Next step: answer the open questions, then re-run /story-implement PROJ-42
+- Next step: answer the open questions, then re-run /story-implement GH-42
 
 ## #4 — 2026-04-23 14:25:40 — change
 
@@ -191,14 +191,14 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 - Why: resolves "should archived accounts still count toward net worth?"
 - Impact: PLAN.md updated, the schema needs an `archived` column
 
-## #5 — 2026-04-23 16:05:33 — /implement completed
+## #5 — 2026-04-23 16:05:33 — /story-implement completed
 
 - Summary: account creation form with excluded-from-net-worth toggle
 - Files created: 3
 - Files modified: 4
 - Deviations from plan: yes — see change entries above
 - Known issues: no
-- Next step: /story-review PROJ-42
+- Next step: /story-review GH-42
 
 ## #6 — 2026-04-23 16:40:12 — change
 

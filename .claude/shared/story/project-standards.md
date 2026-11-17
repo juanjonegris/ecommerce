@@ -6,7 +6,7 @@ The project's hook config is a standard too: `.claude/settings.json`, `.claude/s
 
 ## Recorded knowledge
 
-The project may also record what it learned the hard way: post-mortems, lessons files, KB entries, known traps, non-obvious facts. It may keep that in files or in a server. Read only the files; never query an MCP server for it, the ticket server included. If the project points to knowledge kept in a server, the architect reports it in **Concerns** and the reviewer in the review Summary.
+The project may also record what it learned the hard way: post-mortems, lessons files, KB entries, known traps, non-obvious facts. It may keep that in files or in a server. Read only the files; never query an MCP server for it, the GitHub MCP server included. If the project points to knowledge kept in a server, the architect reports it in **Concerns** and the reviewer in the review Summary.
 
 The project points to recorded knowledge when an instruction file or skill above names where it lives or indexes it. Use every source it points to. A path it points to that doesn't exist is reported the same way. Look for docs that hold it only when the project points nowhere.
 

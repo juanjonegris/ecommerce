@@ -1,35 +1,34 @@
 ---
 name: story-implement
-description: "Implements a spec's PLAN.md by dispatching the implementer subagent, relaying its blocking questions and writing IMPLEMENTATION-SUMMARY.md."
-argument-hint: '[<spec-id>]'
+description: "Implements a story's PLAN.md by dispatching the implementer subagent, relaying its blocking questions and writing IMPLEMENTATION-SUMMARY.md."
+argument-hint: '[<story-id>]'
 disable-model-invocation: true
 ---
 
-# /implement
+# /story-implement
 
-Implement a spec's plan, and document what was built in `IMPLEMENTATION-SUMMARY.md`.
+Implement a story's plan, and document what was built in `IMPLEMENTATION-SUMMARY.md`.
 
 `rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
 
-`/implement` is a thin dispatcher: the implementation happens in the `story-implementer` subagent's own context. See `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`.
+`/story-implement` is a thin dispatcher: the implementation happens in the `story-implementer` subagent's own context. See `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`.
 
-## Step 1 — Resolve the spec
+## Step 1 — Resolve the story
 
-Resolve `<spec-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
+Resolve `<story-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 If `.agents/stories/<feature-name>/PLAN.md` is empty or missing, stop and tell the user:
 
-> "No plan found for `<spec-id>`. Run `/story-plan <id>` first."
+> "No plan found for `<story-id>`. Run `/story-plan <id>` first."
 
 ---
 
 ## Step 2 — Dispatch to the implementer subagent
 
-Invoke the `story-implementer` subagent. Its prompt must contain **only** these lines, with `<plugin-root>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`:
+Dispatch the `story-implementer` subagent with the Agent tool (`subagent_type: story-implementer`). Its prompt must be **only** this line, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`:
 
 ```
-Implement the spec at .agents/stories/<feature-name>/
-Plugin root: <plugin-root>
+Implement the story at .agents/stories/<feature-name>/
 ```
 
 ---

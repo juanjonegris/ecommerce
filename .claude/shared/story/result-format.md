@@ -1,6 +1,6 @@
 # Result and hand-off format
 
-Every ticket command ends with a final report, and every report has one of two readers:
+Every story command ends with a final report, and every report has one of two readers:
 
 - **A dispatching command** reads a subagent's **result** and turns it into files and a `LOGS.md` entry.
 - **The user** reads a command's **hand-off**.
@@ -74,7 +74,7 @@ Field formats are defined in [`logs-format.md`](./logs-format.md) under each com
 Every command's final message to the user:
 
 ```
-/<command> <id> <status>
+/story-<command> <id> <status>
 Artifact: `<path to the artifact the user should review>`
 <one to three lines of key facts>
 Next: <`/story-<next-command> <id>`, or what the user needs to do>

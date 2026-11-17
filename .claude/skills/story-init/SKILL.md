@@ -1,46 +1,39 @@
 ---
 name: story-init
-description: "Creates the project's ticket workflow config at .agents/stories/config.yml: fix defaults and the ticket server."
+description: 'Creates the story workflow config at .agents/stories/config.yml with the /story-fix defaults.'
 disable-model-invocation: true
 ---
 
-# /init
+# /story-init
 
-Configure the ticket workflow for this project.
+Configure the story workflow for this project.
 
-`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
+`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1, unless its full text is already in your context.
 
 ## Step 1 — Read the current config
 
 Read `.agents/stories/config.yml`.
 
-- **Missing** → start from an empty config.
-- **Present** → start from it.
-- **Not valid YAML** → stop:
+- **Missing:** start from an empty config.
+- **Present:** start from it.
+- **Not valid YAML:** stop:
   > "`.agents/stories/config.yml` isn't valid YAML. Fix it by hand, then re-run `/story-init`."
 
 ## Step 2 — Ask
 
-For each question, show the current value when set. An empty reply keeps it. When it's unset, an empty reply takes the recommended answer, or `no` for question 3.
+For each question, show the current value when it's set. An empty reply keeps the current value. When the value is unset, an empty reply takes the recommended answer.
 
 1. **Fix mode**
 
    > "How should `/story-fix` apply review findings? A flag overrides this for one run."
 
-   List each value in **Fix mode** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md` with its behavior, and mark `plan` as recommended.
+   Ask with the `AskUserQuestion` tool. Offer each value in **Fix mode** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md` with its behavior, and put `plan` first, marked as recommended.
 
 2. **Include minor**
 
    > "Should `/story-fix` also fix minor findings? (yes / no — recommended no)"
 
-3. **Ticket server**
-
-   > "Do you pull tickets from a tracker through an MCP server (e.g. Linear, JIRA, GitHub)? If so, which one? (e.g. `linear` — or `no`)"
-
-   Unless the answer is `no`, find the MCP servers available in this session whose name contains the answer, case-insensitive (e.g. `linear` matches `claude_ai_Linear`):
-   - **Exactly one** → `<server>` = its full name. Tell the user which server was found.
-   - **More than one** → list them and ask which one to use.
-   - **None** → list the available servers and ask which one to use. If there are none, or the user picks none, tell them to install or enable the server and re-run `/story-init`, and leave `tickets.server` unset.
+The tracker isn't configurable: the workflow reads GitHub issues through the `github` MCP server. See **Issue tracker** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/config.md`.
 
 ## Step 3 — Write the config
 
@@ -51,20 +44,15 @@ commands:
   fix:
     mode: <auto | plan | interactive>
     include_minor: <true | false>
-
-tickets:
-  server: <server>
 ```
 
-- Change only `commands.fix.mode`, `commands.fix.include_minor`, and `tickets.server`. Leave every other key as it was.
-- Omit `tickets` if there's no ticket server.
+Change only `commands.fix.mode` and `commands.fix.include_minor`. Leave every other key as it was.
 
 ## Step 4 — Hand off to user
 
 ```
-/init completed
+/story-init completed
 Artifact: `.agents/stories/config.yml`
 fix: mode <mode>, include_minor <true | false>
-ticket server: <server> | none
-Next: /story-spec, or /story-spec <ticket-id>
+Next: /story-spec, or /story-spec GH-<n>
 ```

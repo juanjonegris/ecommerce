@@ -1,70 +1,68 @@
 ---
 name: story-spec
-description: "Starts a new feature spec: creates the spec folder (<TICKET-ID>-<slug> from a ticket, <repo>-<code>-<slug> otherwise) and fills SPEC.md through a one-question-at-a-time conversation, optionally pre-filled from a ticket through the project's ticket server"
-argument-hint: '[<ticket-id> | <ticket-url>]'
+description: 'Starts a new story: creates the story folder (GH-<n>-<slug> from a GitHub issue, <code>-<slug> otherwise) and fills SPEC.md through a one-question-at-a-time conversation, optionally pre-filled from the GitHub issue'
+argument-hint: '[GH-<n> | #<n> | <issue-url>]'
 disable-model-invocation: true
 ---
 
-# /spec
+# /story-spec
 
-If the spec comes from a ticket (e.g. JIRA, Linear, GitHub), pre-fill parts of it through the project's ticket server.
+Start a story and write its `SPEC.md`. If the story comes from a GitHub issue of this repository, pre-fill parts of the spec from the issue.
 
-`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
+`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1, unless its full text is already in your context.
 
 ## Step 1 — Parse command arguments
 
 Raw arguments: `$ARGUMENTS`, trimmed.
 
-- **Empty** → a spec without a ticket.
-- **A single token shaped like a ticket id** — a letter, then letters or digits, a `-`, then digits, e.g. `PROJ-1234` → a ticket spec. `<ticket-id>` = the argument, keeping its casing.
-- **A single URL naming one ticket** — a token starting with `http://` or `https://` whose whole path segments and query-parameter values contain exactly one id shaped like a ticket id (case-insensitive) → a ticket spec. `<ticket-id>` = that id, keeping its casing:
-  - `https://some-org.atlassian.net/jira/software/projects/PROJ/boards/12?selectedIssue=PROJ-1234` → `PROJ-1234`
-  - `https://linear.app/some-org/issue/PROJ-41/some-title` → `PROJ-41`
-- **Anything else** → show the examples below and stop.
+- **Empty:** a standalone story.
+- **A single issue reference:** `GH-<n>`, `gh-<n>`, `#<n>` or a bare number `<n>`. This makes it an issue story, with `<n>` the issue number.
+- **A single GitHub issue URL:** `https://github.com/<owner>/<repo>/issues/<n>`. This makes it an issue story, with `<n>` taken from the URL. If `<owner>/<repo>` isn't this repository (the `origin` remote, from `git remote get-url origin`), stop:
+  > "That issue belongs to `<owner>/<repo>`, not to this repository (`<origin-owner>/<origin-repo>`)."
+- **Anything else:** show the examples below and stop.
+
+For an issue story, `<issue-id>` = `GH-<n>`.
 
 Examples:
 
-- `/story-spec`: plain feature, no external ticket. The name comes from your answers
-- `/story-spec PROJ-1234`: pulls context from ticket PROJ-1234 through the project's ticket server
-- `/story-spec https://some-org.atlassian.net/browse/PROJ-1234`: the same, with the ticket id taken from the URL
+- `/story-spec`: a standalone story. The name comes from your answers.
+- `/story-spec GH-12` or `/story-spec #12`: pulls context from issue #12 of this repository.
+- `/story-spec https://github.com/<owner>/<repo>/issues/12`: the same, with the issue number taken from the URL.
 
 ---
 
-## Step 2 — Check the config and fetch the ticket (if any)
+## Step 2 — Check the config and fetch the issue (if any)
 
 Check the config per **Required keys** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/config.md`.
 
-For a spec without a ticket, get `<repo>` now, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`, so a missing git repository stops the command before the conversation.
+For an issue story:
 
-For a ticket spec:
+- If a folder matching `.agents/stories/GH-<n>-*` (case-insensitive) already exists, stop. Never create a second folder for the same issue:
 
-- `<server>` = `tickets.server` from `.agents/stories/config.yml`. If it's unset, stop:
-  > "No ticket server is set for this project. Run `/story-init` to choose one."
-- If no MCP server named `<server>` is available in this session, stop, listing the MCP servers that are available:
-  > "MCP server `<server>` isn't available. Available servers: <list>. Install or enable it, or run `/story-init` to choose another."
-- If a folder matching `.agents/stories/<ticket-id>-*` (case-insensitive) already exists, stop — never create a second folder for the same ticket:
+  > "Issue `GH-<n>` already has a story at `.agents/stories/<folder>/`. Run `/story-resume GH-<n>`."
 
-  > "Ticket `<ticket-id>` already has a spec at `.agents/stories/<folder>/`. Run `/story-resume <ticket-id>`."
+  A missing `.agents/stories/` means there's no match. If the check itself fails, stop and show its error.
 
-  A missing `.agents/stories/` means no match. If the check itself fails, stop and show its error.
+- If the `github` MCP server isn't available in this session, stop:
+  > "The `github` MCP server isn't available. Check `.mcp.json` and that `GITHUB_PAT` is set, then re-run `/story-spec GH-<n>`."
 
-Otherwise, fetch the ticket with id `<ticket-id>` using that server's MCP tools.
+Otherwise, fetch issue `<n>` with the GitHub MCP server's `issue_read` tool (method `get`). Take `<owner>` and `<repo>` from the `origin` remote. Also read the issue's comments (method `get_comments`).
 
-If the ticket doesn't exist, stop:
+If the issue doesn't exist, stop:
 
-> "Ticket `<ticket-id>` wasn't found on `<server>`."
+> "Issue `#<n>` wasn't found in `<owner>/<repo>`."
 
-Report back to the user what was pulled in:
+Tell the user what was pulled in:
 
-> "Loaded `<ticket-id>` ticket:
+> "Loaded issue `#<n>`: <issue-title>
 >
-> The following spec fields will be pre-filled from the ticket:
+> The following spec fields will be pre-filled from the issue:
 >
-> - Description ← ticket summary
-> - Problem ← ticket description
-> - Acceptance criteria ← ticket acceptance criteria
+> - Description ← issue title
+> - Problem ← issue body
+> - Acceptance criteria ← the issue's acceptance criteria, or criteria derived from its body and comments, marked "derived — confirm"
 >
-> I'll show each one during the spec conversation so you can confirm or edit."
+> I'll show each one during the spec conversation so you can confirm or edit it."
 
 ---
 
@@ -74,15 +72,15 @@ Nothing is written to disk until every question is answered.
 
 Tell the user:
 
-> "Let's build out the spec together — I'll ask you a few questions to define a solid use case before moving to design."
+> "Let's build out the spec together. I'll ask you a few questions to define a solid use case before we move to design."
 
 Then ask the following questions **one at a time**, in order.
 
-### For a ticket spec
+### For an issue story
 
-For any question whose answer is pre-filled from the ticket, present the pre-filled value and ask for confirmation:
+For any question whose answer is pre-filled from the issue, present the pre-filled value and ask for confirmation:
 
-> "From the ticket: _<mapped value>_.
+> "From the issue: _<mapped value>_.
 >
 > Keep as-is, or rewrite?"
 
@@ -90,7 +88,7 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
 
 1. **Description**
 
-   > "In one sentence — what is this feature?"
+   > "In one sentence, what is this feature?"
 
 2. **Problem**
 
@@ -98,7 +96,7 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
 
 3. **Use case**
 
-   > "Walk me through the user flow step by step. What does the user do, what does the app do, what's the end result?"
+   > "Walk me through the user flow step by step. What does the user do, what does the app do, and what's the end result?"
 
 4. **Acceptance criteria**
 
@@ -109,46 +107,46 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
    > "Are there any screenshots, mockups, or other files I should put in `refs/`? If so, describe them or share them now."
 
 6. **Out of scope**
-   > "Is something explicitly NOT part of this feature?"
+   > "Is anything explicitly NOT part of this feature?"
 
 ---
 
 ## Step 4 — Create the folder structure
 
-`<id>` is the spec's display id per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
+`<id>` is the story's display id, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 ### 4a. Get the id
 
-- **From a ticket** — no code; go to 4b.
-- **Without a ticket** — generate `<code>` by running, in a POSIX shell:
+- **Issue story:** the id is `GH-<n>`; go to 4b.
+- **Standalone story:** generate `<code>` by running this in a POSIX shell:
 
   ```sh
   LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c 4
   ```
 
-  or in PowerShell:
+  or this in PowerShell:
 
   ```powershell
   -join (1..4 | ForEach-Object { 'abcdefghijklmnopqrstuvwxyz0123456789'.ToCharArray() | Get-Random })
   ```
 
-  If any folder in `.agents/stories/` starts with `<repo>-<code>-`, run it again. Never make up a code or pick one yourself.
+  If any folder in `.agents/stories/` starts with `<code>-`, run it again. Never make up a code or pick one yourself.
 
 ### 4b. Name the feature
 
-- **From a ticket** — `<feature-name>` = the ticket's title.
-- **Without a ticket** — infer `<feature-name>` from the Description and Problem answers: a short phrase naming what the feature does, e.g. `user login`. Don't ask the user for it.
+- **Issue story:** `<feature-name>` = the issue's title.
+- **Standalone story:** infer `<feature-name>` from the Description and Problem answers. It's a short phrase naming what the feature does, e.g. `user login`. Don't ask the user for it.
 
 ### 4c. Build the folder name
 
 `<kebab>` is `<feature-name>` in kebab-case, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`. If `<kebab>` is longer than 50 characters, cut it at the last `-` before the 50th character.
 
-- **From a ticket** — `<folder>` = `<ticket-id>-<kebab>`
-- **Without a ticket** — `<folder>` = `<repo>-<code>-<kebab>`
+- **Issue story:** `<folder>` = `GH-<n>-<kebab>`
+- **Standalone story:** `<folder>` = `<code>-<kebab>`
 
 ### 4d. Create the folder
 
-Create the following structure at `.agents/stories/<folder>/`:
+Create this structure at `.agents/stories/<folder>/`:
 
 ```
 .agents/stories/<folder>/
@@ -163,12 +161,12 @@ Create the following structure at `.agents/stories/<folder>/`:
 
 Write the following to `SPEC.md`.
 
-For a ticket spec, include the `Source:` line linking back to the ticket. Omit it for a spec without a ticket.
+For an issue story, include the `Source:` line linking back to the issue. Leave it out for a standalone story.
 
 ```markdown
 # SPEC — <feature-name>
 
-> **Source:** [<ticket-id>](ticket-url) — <ticket-title>
+> **Source:** [GH-<n>](issue-url) — <issue-title>
 
 ## Description
 
@@ -203,10 +201,10 @@ For a ticket spec, include the `Source:` line linking back to the ticket. Omit i
 
 ## Step 6 — Append to LOGS.md
 
-Append a `/spec completed` entry to `.agents/stories/<folder>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`.
+Append a `/story-spec completed` entry to `.agents/stories/<folder>/LOGS.md`, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`.
 
 ---
 
 ## Step 7 — Hand off to user
 
-Hand off to the user per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/result-format.md`. For a spec without a ticket, include the inferred name among the key facts, e.g. `Feature: user login`.
+Hand off to the user per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/result-format.md`. For a standalone story, include the inferred name among the key facts, e.g. `Feature: user login`.

@@ -1,11 +1,11 @@
 ---
 name: story-fix
 description: 'Applies findings from a REVIEW.md in auto, plan, or interactive mode, lets the user steer or pull in findings by code, and appends a Fix Summary.'
-argument-hint: '[<spec-id>] [codes…] [-a | -p | -i]'
+argument-hint: '[<story-id>] [codes…] [-a | -p | -i]'
 disable-model-invocation: true
 ---
 
-# /fix
+# /story-fix
 
 Read review findings and fix all blocker and major issues. Record what was changed next to the findings.
 
@@ -13,18 +13,18 @@ Read review findings and fix all blocker and major issues. Record what was chang
 
 ## Step 1 — Parse command arguments
 
-The command takes one source — an optional positional spec identifier (see `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`) — then optional finding codes and flags.
+The command takes one source — an optional positional story identifier (see `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`) — then optional finding codes and flags.
 
-- If the first positional is shaped like a finding code, or a comma-separated list of them, the spec identifier was omitted and every positional is a finding code. Otherwise the first positional is the spec identifier and every positional after it is a finding code.
+- If the first positional is shaped like a finding code, or a comma-separated list of them, the story identifier was omitted and every positional is a finding code. Otherwise the first positional is the story identifier and every positional after it is a finding code.
 - Codes are separated by commas, spaces, or both — `n1,n2`, `n1 n2`, and `n1, n2` are the same. Match codes case-insensitively everywhere, and drop duplicates.
 - `-a`, `-p`, `-i` pick the mode for this run: `auto`, `plan`, `interactive`, per **Fix mode** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
 
 Examples:
 
-- `/fix k3f9 S1 -p` — also fixes suggestion S1, in plan mode
-- `/fix n1,n2` — the spec comes from the branch or this session; also fixes minors N1 and N2
+- `/story-fix k3f9 S1 -p` — also fixes suggestion S1, in plan mode
+- `/story-fix n1,n2` — the story comes from the branch or this session; also fixes minors N1 and N2
 
-A positional after the spec identifier that isn't shaped like a code (`B`, `M`, `N`, or `S` followed by digits) stops the command:
+A positional after the story identifier that isn't shaped like a code (`B`, `M`, `N`, or `S` followed by digits) stops the command:
 
 > "`<arg>` isn't a finding code. Codes look like `B1`, `M2`, `N1`, `S3`."
 
@@ -42,7 +42,7 @@ More than one of `-a`, `-p`, `-i` stops the command:
 
 Determine the effective mode and scope for this run. Precedence is **flag > `commands.fix.mode`**.
 
-### Load ticket workflow config
+### Load story workflow config
 
 Check the config per **Required keys** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/config.md`.
 
@@ -53,9 +53,9 @@ Check the config per **Required keys** in `${CLAUDE_PROJECT_DIR}/.claude/shared/
 
 ---
 
-## Step 3 — Resolve the spec and read context
+## Step 3 — Resolve the story and read context
 
-Resolve `<spec-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
+Resolve `<story-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 Read:
 
@@ -65,7 +65,7 @@ Read:
 
 If `REVIEW.md` is empty or missing, stop:
 
-> "No review found for `<spec-id>`. Run `/story-review <id>` first."
+> "No review found for `<story-id>`. Run `/story-review <id>` first."
 
 Check every code from the command arguments against the findings being fixed. A code that isn't there stops the command:
 
@@ -205,7 +205,7 @@ Update `SPEC.md`, `PLAN.md` and `IMPLEMENTATION-SUMMARY.md` per **Artifact owner
 
 ### 6c. LOGS.md entry
 
-Append `/fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`, with `Next step:` per **Fix next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
+Append `/story-fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`, with `Next step:` per **Fix next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
 
 ---
 
@@ -214,7 +214,7 @@ Append `/fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUD
 Hand off per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/result-format.md`.
 
 ```
-/fix <id> completed
+/story-fix <id> completed
 Artifact: `.agents/stories/<feature-name>/REVIEW.md` (fix summary appended)
 Mode: <mode> — fixed: <codes> · skipped: <codes, or "none"> · deferred: <codes, or "none">
 New issues found: <"no", or "yes — <note>">

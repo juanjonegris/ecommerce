@@ -1,38 +1,38 @@
 ---
 name: story-resume
-description: 'Orients on one spec by reading its LOGS.md and showing the last entry and where the work stands.'
-argument-hint: '[<spec-id>]'
+description: 'Orients on one story by reading its LOGS.md and showing the last entry and where the work stands.'
+argument-hint: '[<story-id>]'
 disable-model-invocation: true
 ---
 
-# /resume
+# /story-resume
 
-Orient the agent on a spec's current state at the start of a new session.
+Orient the agent on a story's current state at the start of a new session.
 
 `rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
 
-## Step 1 — Locate the spec
+## Step 1 — Locate the story
 
-`<spec-id>` = `$ARGUMENTS[0]`, if given.
+`<story-id>` = `$ARGUMENTS[0]`, if given.
 
-Resolve `<spec-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
+Resolve `<story-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 ---
 
 ## Step 2 — Read the session history
 
-Apply the **Always read LOGS.md first** rule from `rules.md`: read the full `LOGS.md` for the resolved spec folder.
+Apply the **Always read LOGS.md first** rule from `rules.md`: read the full `LOGS.md` for the resolved story folder.
 
 If `LOGS.md` is empty or missing, the folder wasn't produced by `/story-spec`. Tell the user:
 
-> "Spec `<id>` has no LOGS.md at `.agents/stories/<folder>/`. The ticket workflow can't resume it."
+> "Story `<id>` has no LOGS.md at `.agents/stories/<folder>/`. The story workflow can't resume it."
 
 Then stop.
 
 Otherwise, identify:
 
 - **The last entry** in the file, command or change.
-- **The last command entry** (`/<command> completed | paused | failed`) and the change entries after it. These drive `Where you are:`, even when the last entry is a change entry.
+- **The last command entry** (`/story-<command> completed | paused | failed`) and the change entries after it. These drive `Where you are:`, even when the last entry is a change entry.
 
 ### Do not
 
@@ -57,12 +57,12 @@ Where you are: <one-line synthesis>
 
 `#<n>` and `<timestamp>` are the last entry's heading id and timestamp, as written. Leave out `#<n>` for an entry without an id. `<type>` and `<what>` depend on the entry:
 
-| Last entry                | `<type>`               | `<what>`          |
-| ------------------------- | ---------------------- | ----------------- |
-| change entry              | its `Type:`            | its `What:`       |
-| `completed` command entry | `/<command> completed` | its `Next step:`  |
-| `paused` command entry    | `/<command> paused`    | its `Blocked on:` |
-| `failed` command entry    | `/<command> failed`    | its `Reason:`     |
+| Last entry                | `<type>`                     | `<what>`          |
+| ------------------------- | ---------------------------- | ----------------- |
+| change entry              | its `Type:`                  | its `What:`       |
+| `completed` command entry | `/story-<command> completed` | its `Next step:`  |
+| `paused` command entry    | `/story-<command> paused`    | its `Blocked on:` |
+| `failed` command entry    | `/story-<command> failed`    | its `Reason:`     |
 
 ### Rules for the synthesis line
 

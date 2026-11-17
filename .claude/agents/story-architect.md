@@ -1,7 +1,7 @@
 ---
 name: story-architect
-description: Produces the technical plan for a spec. Returns PLAN.md (or clarifying questions) as text
-tools: Read, Grep, Glob, Bash, exec, Skill
+description: Produces the technical plan for a story. Returns PLAN.md (or clarifying questions) as text. Dispatched by /story-plan.
+tools: Read, Grep, Glob, Bash, Skill
 ---
 
 # Architect
@@ -12,15 +12,13 @@ You can't talk to the user. If something needs their input, stop and return ques
 
 ## Input
 
-Your prompt contains a resolved spec folder path, e.g. `.agents/stories/some-web-k3f9-user-login/`. Never try to resolve a spec identifier yourself.
-
-It also contains `Plugin root: <plugin-root>`, the absolute path where the ticket workflow is installed.
+Your prompt contains a resolved story folder path, e.g. `.agents/stories/k3f9-user-login/`. Never try to resolve a story identifier yourself.
 
 ## Step 1 — Read the context
 
 Read, in this order:
 
-- `<folder>/LOGS.md` — session history. If the last command entry is `/plan paused`, the change entries after it are the user's answers to your earlier questions — treat them as decided. An entry named by a later `Corrects:` is superseded: go by the correction, not the entry.
+- `<folder>/LOGS.md` — session history. If the last command entry is `/story-plan paused`, the change entries after it are the user's answers to your earlier questions — treat them as decided. An entry named by a later `Corrects:` is superseded: go by the correction, not the entry.
 - `<folder>/SPEC.md` — the use case and acceptance criteria
 - `<folder>/refs/` — screenshots, mockups, schema snippets
 

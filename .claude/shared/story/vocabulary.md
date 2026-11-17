@@ -1,6 +1,6 @@
-# Ticket workflow vocabulary
+# Story workflow vocabulary
 
-Every fixed value the ticket workflow uses — in `LOGS.md`, in subagent results, in hand-offs, in `status` — is defined here and only here.
+Every fixed value the story workflow uses — in `LOGS.md`, in subagent results, in hand-offs, in `status` — is defined here and only here.
 
 Values are **kebab-case**, lowercase, and exact. A value that isn't on its list is an error, never something to coerce to the nearest match — same "hard failures over silent fallbacks" principle as the rest of the workflow.
 
@@ -12,7 +12,7 @@ Values written in `LOGS.md` entries.
 
 ### Command status
 
-The `<status>` in a `LOGS.md` command entry heading: `## #<n> — <timestamp> — /<command> <status>`.
+The `<status>` in a `LOGS.md` command entry heading: `## #<n> — <timestamp> — /story-<command> <status>`.
 
 | Value       | Meaning                                            | Written when                                            |
 | ----------- | -------------------------------------------------- | ------------------------------------------------------- |
@@ -45,9 +45,9 @@ The `Trigger:` field of a `LOGS.md` change entry.
 
 The prefix of a change entry's `What:` when it records a subagent question the user can't answer yet.
 
-| Value               | Meaning                                                                     |
-| ------------------- | --------------------------------------------------------------------------- |
-| `not-answered-yet:` | The answer needs something outside the ticket workflow, such as an approval |
+| Value               | Meaning                                                                    |
+| ------------------- | -------------------------------------------------------------------------- |
+| `not-answered-yet:` | The answer needs something outside the story workflow, such as an approval |
 
 ### Next step
 
