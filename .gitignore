@@ -45,3 +45,4 @@ yarn-error.log*
 # calude
 .claude/docs
 .claude/reports
+.claude/settings.local.json
