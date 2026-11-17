@@ -47,7 +47,8 @@ apps/web/                 Next.js app (port 3000)
 packages/types/           @repo/types — shared interfaces + Zod, built to dist/ (CJS)
 packages/eslint-config/   shared ESLint flat configs (the enforced style rules)
 packages/tsconfig/        tsconfig presets
-.claude/                  rules/ (auto-loaded by path), skills/, commands/, plans/, archive/ (history, not rules)
+.claude/                  rules/ (auto-loaded by path), skills/, agents/, shared/story/ (story workflow rules), commands/, plans/, archive/ (history, not rules)
+.agents/                  PRD.md; stories/ (story workflow artifacts, committed)
 ```
 
 ## Where new code goes
@@ -87,6 +88,8 @@ Path-scoped rules in `.claude/rules/` load automatically when you read or edit a
 - `infra/build-ci-docker.md` — package.json, turbo, CI, Dockerfiles, env vars
 
 Skills: `new-api-module`, `schema-migration`, `rules-check-drift`, `prime-codebase`. Commands: `/planning`, `/execute`, `/validate`, `/commit`, `/check-ignore-comments`.
+
+Story workflow (one GitHub issue or feature, start to finish): `/story-init` → `/story-spec` → `/story-plan` → `/story-implement` → `/story-review` → `/story-fix`, with `/story-resume` to pick up a story. Subagents: `story-architect`, `story-implementer`, `story-reviewer`. Rules live in `.claude/shared/story/`, and artifacts in `.agents/stories/<id>-<slug>/`.
 
 ## Done means
 

@@ -46,3 +46,12 @@ yarn-error.log*
 .claude/docs
 .claude/reports
 .claude/settings.local.json
+
+# story workflow: keep binaries in refs/ local
+.agents/stories/**/refs/**/*.png
+.agents/stories/**/refs/**/*.jpg
+.agents/stories/**/refs/**/*.jpeg
+.agents/stories/**/refs/**/*.gif
+.agents/stories/**/refs/**/*.webp
+.agents/stories/**/refs/**/*.pdf
+.agents/stories/**/refs/**/*.zip
