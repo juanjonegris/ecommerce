@@ -1,5 +1,5 @@
 ---
-name: ticket-spec
+name: story-spec
 description: "Starts a new feature spec: creates the spec folder (<TICKET-ID>-<slug> from a ticket, <repo>-<code>-<slug> otherwise) and fills SPEC.md through a one-question-at-a-time conversation, optionally pre-filled from a ticket through the project's ticket server"
 argument-hint: '[<ticket-id> | <ticket-url>]'
 disable-model-invocation: true
@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 If the spec comes from a ticket (e.g. JIRA, Linear, GitHub), pre-fill parts of it through the project's ticket server.
 
-`rules.md` is `../../shared/ticket/rules.md`. Read it before Step 1 unless its full text is already in your context.
+`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
 
 ## Step 1 — Parse command arguments
 
@@ -24,29 +24,29 @@ Raw arguments: `$ARGUMENTS`, trimmed.
 
 Examples:
 
-- `/sb:ticket-spec`: plain feature, no external ticket. The name comes from your answers
-- `/sb:ticket-spec PROJ-1234`: pulls context from ticket PROJ-1234 through the project's ticket server
-- `/sb:ticket-spec https://some-org.atlassian.net/browse/PROJ-1234`: the same, with the ticket id taken from the URL
+- `/story-spec`: plain feature, no external ticket. The name comes from your answers
+- `/story-spec PROJ-1234`: pulls context from ticket PROJ-1234 through the project's ticket server
+- `/story-spec https://some-org.atlassian.net/browse/PROJ-1234`: the same, with the ticket id taken from the URL
 
 ---
 
 ## Step 2 — Check the config and fetch the ticket (if any)
 
-Check the config per **Required keys** in `../../shared/ticket/config.md`.
+Check the config per **Required keys** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/config.md`.
 
-For a spec without a ticket, get `<repo>` now, per `../../shared/ticket/spec-identifiers.md`, so a missing git repository stops the command before the conversation.
+For a spec without a ticket, get `<repo>` now, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`, so a missing git repository stops the command before the conversation.
 
 For a ticket spec:
 
-- `<server>` = `tickets.server` from `<vault>/sb-ticket-artifacts/config.yml`. If it's unset, stop:
-  > "No ticket server is set for this project. Run `/sb:ticket-init` to choose one."
+- `<server>` = `tickets.server` from `.agents/stories/config.yml`. If it's unset, stop:
+  > "No ticket server is set for this project. Run `/story-init` to choose one."
 - If no MCP server named `<server>` is available in this session, stop, listing the MCP servers that are available:
-  > "MCP server `<server>` isn't available. Available servers: <list>. Install or enable it, or run `/sb:ticket-init` to choose another."
-- If a folder matching `<vault>/sb-ticket-artifacts/specs/<ticket-id>-*` (case-insensitive) already exists, stop — never create a second folder for the same ticket:
+  > "MCP server `<server>` isn't available. Available servers: <list>. Install or enable it, or run `/story-init` to choose another."
+- If a folder matching `.agents/stories/<ticket-id>-*` (case-insensitive) already exists, stop — never create a second folder for the same ticket:
 
-  > "Ticket `<ticket-id>` already has a spec at `<vault>/sb-ticket-artifacts/specs/<folder>/`. Run `/sb:ticket-resume <ticket-id>`."
+  > "Ticket `<ticket-id>` already has a spec at `.agents/stories/<folder>/`. Run `/story-resume <ticket-id>`."
 
-  A missing `<vault>/sb-ticket-artifacts/specs/` means no match. If the check itself fails, stop and show its error.
+  A missing `.agents/stories/` means no match. If the check itself fails, stop and show its error.
 
 Otherwise, fetch the ticket with id `<ticket-id>` using that server's MCP tools.
 
@@ -115,7 +115,7 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
 
 ## Step 4 — Create the folder structure
 
-`<id>` is the spec's display id per `../../shared/ticket/spec-identifiers.md`.
+`<id>` is the spec's display id per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 ### 4a. Get the id
 
@@ -132,7 +132,7 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
   -join (1..4 | ForEach-Object { 'abcdefghijklmnopqrstuvwxyz0123456789'.ToCharArray() | Get-Random })
   ```
 
-  If any folder in `<vault>/sb-ticket-artifacts/specs/` starts with `<repo>-<code>-`, run it again. Never make up a code or pick one yourself.
+  If any folder in `.agents/stories/` starts with `<repo>-<code>-`, run it again. Never make up a code or pick one yourself.
 
 ### 4b. Name the feature
 
@@ -141,17 +141,17 @@ For any question whose answer is pre-filled from the ticket, present the pre-fil
 
 ### 4c. Build the folder name
 
-`<kebab>` is `<feature-name>` in kebab-case, per `../../shared/ticket/spec-identifiers.md`. If `<kebab>` is longer than 50 characters, cut it at the last `-` before the 50th character.
+`<kebab>` is `<feature-name>` in kebab-case, per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`. If `<kebab>` is longer than 50 characters, cut it at the last `-` before the 50th character.
 
 - **From a ticket** — `<folder>` = `<ticket-id>-<kebab>`
 - **Without a ticket** — `<folder>` = `<repo>-<code>-<kebab>`
 
 ### 4d. Create the folder
 
-Create the following structure at `<vault>/sb-ticket-artifacts/specs/<folder>/`:
+Create the following structure at `.agents/stories/<folder>/`:
 
 ```
-<vault>/sb-ticket-artifacts/specs/<folder>/
+.agents/stories/<folder>/
   LOGS.md
   SPEC.md
   refs/
@@ -203,10 +203,10 @@ For a ticket spec, include the `Source:` line linking back to the ticket. Omit i
 
 ## Step 6 — Append to LOGS.md
 
-Append a `/spec completed` entry to `<vault>/sb-ticket-artifacts/specs/<folder>/LOGS.md` per `../../shared/ticket/logs-format.md`.
+Append a `/spec completed` entry to `.agents/stories/<folder>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`.
 
 ---
 
 ## Step 7 — Hand off to user
 
-Hand off to the user per `../../shared/ticket/result-format.md`. For a spec without a ticket, include the inferred name among the key facts, e.g. `Feature: user login`.
+Hand off to the user per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/result-format.md`. For a spec without a ticket, include the inferred name among the key facts, e.g. `Feature: user login`.

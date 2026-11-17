@@ -46,8 +46,8 @@ Never continue into the next command's work. Hand off and wait for the user to r
 
 Outside `/implement` and `/fix`, don't edit source files on your own. When the user asks for a change between commands:
 
-- **A change that needs planning** (a design decision, a change to the plan's architecture, work across many files), or any change before `IMPLEMENTATION-SUMMARY.md` exists: update `SPEC.md` or `PLAN.md` per **Artifact ownership**, and hand off to `/sb:ticket-plan <id>` if there's no `PLAN.md` yet, otherwise to `/sb:ticket-implement <id>`.
-- **Any other change**: make it in this session, update `SPEC.md` or `PLAN.md` per **Artifact ownership** if the change contradicts them, and log a change entry. Add each file it touches to `IMPLEMENTATION-SUMMARY.md` per **Artifact ownership**, citing that entry, then hand off to `/sb:ticket-review <id>`.
+- **A change that needs planning** (a design decision, a change to the plan's architecture, work across many files), or any change before `IMPLEMENTATION-SUMMARY.md` exists: update `SPEC.md` or `PLAN.md` per **Artifact ownership**, and hand off to `/story-plan <id>` if there's no `PLAN.md` yet, otherwise to `/story-implement <id>`.
+- **Any other change**: make it in this session, update `SPEC.md` or `PLAN.md` per **Artifact ownership** if the change contradicts them, and log a change entry. Add each file it touches to `IMPLEMENTATION-SUMMARY.md` per **Artifact ownership**, citing that entry, then hand off to `/story-review <id>`.
 
 ---
 
@@ -87,18 +87,18 @@ Two roots, never mixed.
 
 **Plugin files** ship with the `sb` plugin (devin-config), relative to the plugin root:
 
-| Location                   | Purpose                                                                                                                                                    |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared/ticket/rules.md`   | This file                                                                                                                                                  |
-| `shared/ticket/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `spec-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md` |
-| `skills/ticket-<command>/` | One skill per command, invoked as `/sb:ticket-<command>`                                                                                                   |
-| `agents/`                  | Subagents, dispatched as `sb:ticket-architect`, `sb:ticket-implementer`, `sb:ticket-reviewer`. See [`delegated work`](./delegated-work.md)                 |
+| Location                  | Purpose                                                                                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shared/story/rules.md`   | This file                                                                                                                                                   |
+| `shared/story/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `story-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md` |
+| `skills/story-<command>/` | One skill per command, invoked as `/story-<command>`                                                                                                        |
+| `agents/`                 | Subagents, dispatched as `story-architect`, `story-implementer`, `story-reviewer`. See [`delegated work`](./delegated-work.md)                              |
 
 **Project files** are the work product, in the developer's vault (rule `sb-vault`), outside every repo:
 
-| Location                                                                                                           | Purpose                                                                                          |
-| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| `<vault>/sb-ticket-artifacts/config.yml`                                                                           | Project config, created by `/sb:ticket-init`. Every key is documented in [`config`](./config.md) |
-| `<vault>/sb-ticket-artifacts/specs/<TICKET-ID>-<slug>/`, `<vault>/sb-ticket-artifacts/specs/<repo>-<code>-<slug>/` | Per-feature work product (created by `/sb:ticket-spec`)                                          |
+| Location                                                                       | Purpose                                                                                      |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `.agents/stories/config.yml`                                                   | Project config, created by `/story-init`. Every key is documented in [`config`](./config.md) |
+| `.agents/stories/<TICKET-ID>-<slug>/`, `.agents/stories/<repo>-<code>-<slug>/` | Per-feature work product (created by `/story-spec`)                                          |
 
 `<vault>` is `~/.sb/sbweb/` resolved to its full path with the shell (PowerShell `$env:USERPROFILE\.sb\sbweb`, POSIX `$HOME/.sb/sbweb`). Always read and write project files through that full path.

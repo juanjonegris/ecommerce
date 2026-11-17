@@ -77,7 +77,7 @@ Every command's final message to the user:
 /<command> <id> <status>
 Artifact: `<path to the artifact the user should review>`
 <one to three lines of key facts>
-Next: <`/sb:ticket-<next-command> <id>`, or what the user needs to do>
+Next: <`/story-<next-command> <id>`, or what the user needs to do>
 ```
 
 A command's skill may name a list for its hand-off. It goes after the key facts and before `Next:`, one line per item:

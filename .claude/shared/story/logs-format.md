@@ -73,14 +73,14 @@ These two have the same fields whichever command wrote them.
 - Blocked on (one line — what needs the user's input)
 - Progress (one line — what's finished so far, or `none`)
 - Files touched (comma-separated paths, or `none`)
-- Next step (`answer the open questions, then re-run /sb:ticket-<command> <id>`)
+- Next step (`answer the open questions, then re-run /story-<command> <id>`)
 
 Written by `/plan` and `/implement` when their subagent returns `needs-input`. The user's answers follow as `decision` / `deviation` / `scope-change` change entries, and a re-run picks up from there. An answer the user can't give yet starts its `What:` with the `not-answered-yet:` marker.
 
 ### `/<command> failed`
 
 - Reason (one line)
-- Next step (`re-run /sb:ticket-<command> <id>`, or what to fix first)
+- Next step (`re-run /story-<command> <id>`, or what to fix first)
 
 Written when a subagent returns `error` or a malformed result. No artifact is written for a failed run.
 
@@ -166,7 +166,7 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 - Feature: account creation with excluded from net worth toggle
 - Source: PROJ-42
 - Key decisions: toggle defaults to false
-- Next step: /sb:ticket-plan PROJ-42
+- Next step: /story-plan PROJ-42
 
 ## #2 — 2026-04-23 11:47:03 — /plan completed
 
@@ -174,14 +174,14 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 - Key decisions: reuse existing form component
 - Open questions: none
 - Concerns: none
-- Next step: /sb:ticket-implement PROJ-42
+- Next step: /story-implement PROJ-42
 
 ## #3 — 2026-04-23 14:22:18 — /implement paused
 
 - Blocked on: whether archived accounts count toward net worth
 - Progress: form component and schema change written
 - Files touched: src/accounts/AccountForm.tsx, db/schema/0042_archived.sql
-- Next step: answer the open questions, then re-run /sb:ticket-implement PROJ-42
+- Next step: answer the open questions, then re-run /story-implement PROJ-42
 
 ## #4 — 2026-04-23 14:25:40 — change
 
@@ -198,7 +198,7 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 - Files modified: 4
 - Deviations from plan: yes — see change entries above
 - Known issues: no
-- Next step: /sb:ticket-review PROJ-42
+- Next step: /story-review PROJ-42
 
 ## #6 — 2026-04-23 16:40:12 — change
 

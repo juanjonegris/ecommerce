@@ -18,7 +18,7 @@ An answer in `LOGS.md` doesn't open the gate: the same call hits the same hook a
 - **Done by the user** — the user performed the blocked action, or changed the hook or its permission. Continue from there; don't repeat the action.
 - **Hook-defined approval** — the hook's message names a way to pass approval, such as an environment variable or a ticket file, and the answer provides it. Follow it.
 - **Plan changed** — `PLAN.md` was updated so the work doesn't need the blocked action. Follow the new plan.
-- **Stop** — the user can't resolve it now. Retry nothing; `/sb:ticket-fix` skips the finding.
+- **Stop** — the user can't resolve it now. Retry nothing; `/story-fix` skips the finding.
 
 ## Hooks that change files
 

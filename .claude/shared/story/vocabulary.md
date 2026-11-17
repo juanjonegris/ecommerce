@@ -108,19 +108,19 @@ Every finding carries a code: the severity's letter plus a number, e.g. `B1`, `M
 
 ### Review verdict
 
-| Value        | Meaning                               | Next step                                                                                   |
-| ------------ | ------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `fix-needed` | At least one blocker or major finding | `/sb:ticket-fix <id>`                                                                       |
-| `approved`   | No blockers or major findings         | `none — review clean`, plus `; optional: /sb:ticket-fix <id> <codes>` when there are minors |
+| Value        | Meaning                               | Next step                                                                               |
+| ------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
+| `fix-needed` | At least one blocker or major finding | `/story-fix <id>`                                                                       |
+| `approved`   | No blockers or major findings         | `none — review clean`, plus `; optional: /story-fix <id> <codes>` when there are minors |
 
 `<codes>` are the minors' codes, `N1` through `N<n>` from the `Minor:` count, comma-separated with no spaces: `N1,N2,N3`.
 
 ### Fix next step
 
-| Fixed from                                        | Next step                                                      |
-| ------------------------------------------------- | -------------------------------------------------------------- |
-| An `approved` review, with `New issues found: no` | `none — no re-review needed; optional: /sb:ticket-review <id>` |
-| Anything else                                     | `/sb:ticket-review <id>`                                       |
+| Fixed from                                        | Next step                                                  |
+| ------------------------------------------------- | ---------------------------------------------------------- |
+| An `approved` review, with `New issues found: no` | `none — no re-review needed; optional: /story-review <id>` |
+| Anything else                                     | `/story-review <id>`                                       |
 
 ### Fix mode
 

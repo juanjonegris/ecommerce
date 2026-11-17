@@ -1,5 +1,5 @@
 ---
-name: ticket-architect
+name: story-architect
 description: Produces the technical plan for a spec. Returns PLAN.md (or clarifying questions) as text
 tools: Read, Grep, Glob, Bash, exec, Skill
 ---
@@ -12,7 +12,7 @@ You can't talk to the user. If something needs their input, stop and return ques
 
 ## Input
 
-Your prompt contains a resolved spec folder path, e.g. `<vault>/sb-ticket-artifacts/specs/some-web-k3f9-user-login/`. Never try to resolve a spec identifier yourself.
+Your prompt contains a resolved spec folder path, e.g. `.agents/stories/some-web-k3f9-user-login/`. Never try to resolve a spec identifier yourself.
 
 It also contains `Plugin root: <plugin-root>`, the absolute path where the ticket workflow is installed.
 
@@ -26,7 +26,7 @@ Read, in this order:
 
 If `SPEC.md` is empty or missing, return `error`.
 
-Then find the project's standards per `<plugin-root>/shared/ticket/project-standards.md`.
+Then find the project's standards per `.claude/shared/story/project-standards.md`.
 
 ## Step 2 — Explore the codebase
 
@@ -62,7 +62,7 @@ Never ask the user to confirm something is acceptable. A "confirm X?" hides the 
 
 ## Step 4 — Return your result
 
-Return exactly one of these as your final message, following every rule in `<plugin-root>/shared/ticket/result-format.md`.
+Return exactly one of these as your final message, following every rule in `.claude/shared/story/result-format.md`.
 
 Every claim about deploying or running the change, anywhere in your result (a manual step, a registration, a migration to run), cites `<file>:<line>` or a `LOGS.md` decision, or ends with `(unverified)`.
 

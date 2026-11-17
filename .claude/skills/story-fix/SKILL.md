@@ -1,5 +1,5 @@
 ---
-name: ticket-fix
+name: story-fix
 description: 'Applies findings from a REVIEW.md in auto, plan, or interactive mode, lets the user steer or pull in findings by code, and appends a Fix Summary.'
 argument-hint: '[<spec-id>] [codes…] [-a | -p | -i]'
 disable-model-invocation: true
@@ -9,15 +9,15 @@ disable-model-invocation: true
 
 Read review findings and fix all blocker and major issues. Record what was changed next to the findings.
 
-`rules.md` is `../../shared/ticket/rules.md`. Read it before Step 1 unless its full text is already in your context.
+`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
 
 ## Step 1 — Parse command arguments
 
-The command takes one source — an optional positional spec identifier (see `../../shared/ticket/spec-identifiers.md`) — then optional finding codes and flags.
+The command takes one source — an optional positional spec identifier (see `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`) — then optional finding codes and flags.
 
 - If the first positional is shaped like a finding code, or a comma-separated list of them, the spec identifier was omitted and every positional is a finding code. Otherwise the first positional is the spec identifier and every positional after it is a finding code.
 - Codes are separated by commas, spaces, or both — `n1,n2`, `n1 n2`, and `n1, n2` are the same. Match codes case-insensitively everywhere, and drop duplicates.
-- `-a`, `-p`, `-i` pick the mode for this run: `auto`, `plan`, `interactive`, per **Fix mode** in `../../shared/ticket/vocabulary.md`.
+- `-a`, `-p`, `-i` pick the mode for this run: `auto`, `plan`, `interactive`, per **Fix mode** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
 
 Examples:
 
@@ -44,34 +44,34 @@ Determine the effective mode and scope for this run. Precedence is **flag > `com
 
 ### Load ticket workflow config
 
-Check the config per **Required keys** in `../../shared/ticket/config.md`.
+Check the config per **Required keys** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/config.md`.
 
 ### Compute in-scope findings
 
-- In scope: each severity's `fix` default in **Finding severity** in `../../shared/ticket/vocabulary.md` (`include_minor` is `commands.fix.include_minor`), plus every finding the user names by code, as an argument or in a directive. Codes add to that scope, never narrow it.
+- In scope: each severity's `fix` default in **Finding severity** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md` (`include_minor` is `commands.fix.include_minor`), plus every finding the user names by code, as an argument or in a directive. Codes add to that scope, never narrow it.
 - Everything else is deferred and listed under **Deferred**
 
 ---
 
 ## Step 3 — Resolve the spec and read context
 
-Resolve `<spec-id>` per `../../shared/ticket/spec-identifiers.md`.
+Resolve `<spec-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 Read:
 
-- `<vault>/sb-ticket-artifacts/specs/<feature-name>/REVIEW.md` — the findings to fix
-- `<vault>/sb-ticket-artifacts/specs/<feature-name>/PLAN.md` — the technical plan
-- `<vault>/sb-ticket-artifacts/specs/<feature-name>/IMPLEMENTATION-SUMMARY.md` — what was built
+- `.agents/stories/<feature-name>/REVIEW.md` — the findings to fix
+- `.agents/stories/<feature-name>/PLAN.md` — the technical plan
+- `.agents/stories/<feature-name>/IMPLEMENTATION-SUMMARY.md` — what was built
 
 If `REVIEW.md` is empty or missing, stop:
 
-> "No review found for `<spec-id>`. Run `/sb:ticket-review <id>` first."
+> "No review found for `<spec-id>`. Run `/story-review <id>` first."
 
 Check every code from the command arguments against the findings being fixed. A code that isn't there stops the command:
 
 > "`<code>` isn't a finding in `REVIEW.md` for `<id>`. Findings: `<codes>`."
 
-Then find the project's standards per `../../shared/ticket/project-standards.md`, reading only the parts that apply to the findings being fixed. Follow them, and cite a standard that shaped a fix on that finding's Fix Summary line.
+Then find the project's standards per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/project-standards.md`, reading only the parts that apply to the findings being fixed. Follow them, and cite a standard that shaped a fix on that finding's Fix Summary line.
 
 ---
 
@@ -153,7 +153,7 @@ Each of these is a **Stop and ask** from `rules.md`, even in `auto`:
 - A fix needs a design change
 - A fix adds a dependency `PLAN.md` doesn't list
 - A project standard conflicts with a finding's `Fix:` line
-- A hook blocks a tool call and complying needs a person. Handle every hook per `../../shared/ticket/project-hooks.md`
+- A hook blocks a tool call and complying needs a person. Handle every hook per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/project-hooks.md`
 
 ---
 
@@ -205,17 +205,17 @@ Update `SPEC.md`, `PLAN.md` and `IMPLEMENTATION-SUMMARY.md` per **Artifact owner
 
 ### 6c. LOGS.md entry
 
-Append `/fix completed` to `<vault>/sb-ticket-artifacts/specs/<feature-name>/LOGS.md` per `../../shared/ticket/logs-format.md`, with `Next step:` per **Fix next step** in `../../shared/ticket/vocabulary.md`.
+Append `/fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`, with `Next step:` per **Fix next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
 
 ---
 
 ## Step 7 — Hand off to user
 
-Hand off per `../../shared/ticket/result-format.md`.
+Hand off per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/result-format.md`.
 
 ```
 /fix <id> completed
-Artifact: `<vault>/sb-ticket-artifacts/specs/<feature-name>/REVIEW.md` (fix summary appended)
+Artifact: `.agents/stories/<feature-name>/REVIEW.md` (fix summary appended)
 Mode: <mode> — fixed: <codes> · skipped: <codes, or "none"> · deferred: <codes, or "none">
 New issues found: <"no", or "yes — <note>">
 Manual steps:

@@ -1,5 +1,5 @@
 ---
-name: ticket-resume
+name: story-resume
 description: 'Orients on one spec by reading its LOGS.md and showing the last entry and where the work stands.'
 argument-hint: '[<spec-id>]'
 disable-model-invocation: true
@@ -9,13 +9,13 @@ disable-model-invocation: true
 
 Orient the agent on a spec's current state at the start of a new session.
 
-`rules.md` is `../../shared/ticket/rules.md`. Read it before Step 1 unless its full text is already in your context.
+`rules.md` is `${CLAUDE_PROJECT_DIR}/.claude/shared/story/rules.md`. Read it before Step 1 unless its full text is already in your context.
 
 ## Step 1 — Locate the spec
 
 `<spec-id>` = `$ARGUMENTS[0]`, if given.
 
-Resolve `<spec-id>` per `../../shared/ticket/spec-identifiers.md`.
+Resolve `<spec-id>` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/story-identifiers.md`.
 
 ---
 
@@ -23,9 +23,9 @@ Resolve `<spec-id>` per `../../shared/ticket/spec-identifiers.md`.
 
 Apply the **Always read LOGS.md first** rule from `rules.md`: read the full `LOGS.md` for the resolved spec folder.
 
-If `LOGS.md` is empty or missing, the folder wasn't produced by `/sb:ticket-spec`. Tell the user:
+If `LOGS.md` is empty or missing, the folder wasn't produced by `/story-spec`. Tell the user:
 
-> "Spec `<id>` has no LOGS.md at `<vault>/sb-ticket-artifacts/specs/<folder>/`. The ticket workflow can't resume it."
+> "Spec `<id>` has no LOGS.md at `.agents/stories/<folder>/`. The ticket workflow can't resume it."
 
 Then stop.
 
@@ -68,14 +68,14 @@ Where you are: <one-line synthesis>
 
 Base it on the last command entry's `Next step:`, in one sentence. Examples:
 
-- `"Implementation finished. Next step: /sb:ticket-review k3f9."`
-- `"Code review done with 2 blockers, 1 major. Next step: /sb:ticket-fix k3f9."`
-- `"Spec written. Next step: /sb:ticket-plan k3f9."`
+- `"Implementation finished. Next step: /story-review k3f9."`
+- `"Code review done with 2 blockers, 1 major. Next step: /story-fix k3f9."`
+- `"Spec written. Next step: /story-plan k3f9."`
 
-If the `Next step:` starts with `none`, say nothing is open and name the optional command, if any, per **Next step** in `../../shared/ticket/vocabulary.md`. E.g. `"Review clean, nothing open. Optional: /sb:ticket-fix k3f9 N1,N2."`
+If the `Next step:` starts with `none`, say nothing is open and name the optional command, if any, per **Next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`. E.g. `"Review clean, nothing open. Optional: /story-fix k3f9 N1,N2."`
 
-If the last command entry has `Manual steps:`, name them before the next command, e.g. `"Implementation finished. Restart the local API, then /sb:ticket-review k3f9."`
+If the last command entry has `Manual steps:`, name them before the next command, e.g. `"Implementation finished. Restart the local API, then /story-review k3f9."`
 
-If the last command entry is `paused`, name what it's blocked on and how to pick it back up. The change entries after it are the user's answers so far. An answer whose `What:` starts with `not-answered-yet:` doesn't count until a later entry answers the same question: name the question and what the user needs to do before re-running. E.g. `"Paused during /sb:ticket-implement, blocked on: <Blocked on: value> — 2 answers logged. Re-run /sb:ticket-implement k3f9 to continue."`
+If the last command entry is `paused`, name what it's blocked on and how to pick it back up. The change entries after it are the user's answers so far. An answer whose `What:` starts with `not-answered-yet:` doesn't count until a later entry answers the same question: name the question and what the user needs to do before re-running. E.g. `"Paused during /story-implement, blocked on: <Blocked on: value> — 2 answers logged. Re-run /story-implement k3f9 to continue."`
 
-If the last command entry is `failed`, give the reason and the re-run, e.g. `"/sb:ticket-review failed: <Reason: value>. Re-run /sb:ticket-review k3f9."` For a failed `/sb:ticket-implement`, add that code may have changed on disk.
+If the last command entry is `failed`, give the reason and the re-run, e.g. `"/story-review failed: <Reason: value>. Re-run /story-review k3f9."` For a failed `/story-implement`, add that code may have changed on disk.

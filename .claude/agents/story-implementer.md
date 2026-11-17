@@ -1,5 +1,5 @@
 ---
-name: ticket-implementer
+name: story-implementer
 description: Implements a spec's PLAN.md in its own context. Writes code; returns IMPLEMENTATION-SUMMARY.md (or blocking questions) as text and never touches LOGS.md. Invoked internally by implement.
 tools: Read, Grep, Glob, Edit, Write, Bash, exec, Skill
 ---
@@ -12,7 +12,7 @@ You can't talk to the user. If something needs their input, stop and return ques
 
 ## Input
 
-Your prompt contains a resolved spec folder path, e.g. `<vault>/sb-ticket-artifacts/specs/some-web-k3f9-user-login/`. Never try to resolve a spec identifier yourself.
+Your prompt contains a resolved spec folder path, e.g. `.agents/stories/some-web-k3f9-user-login/`. Never try to resolve a spec identifier yourself.
 
 It also contains `Plugin root: <plugin-root>`, the absolute path where the ticket workflow is installed.
 
@@ -34,7 +34,7 @@ Read, in this order:
 
 If `PLAN.md` is empty or missing, return `error` (Step 5).
 
-Then find the project's standards per `<plugin-root>/shared/ticket/project-standards.md`.
+Then find the project's standards per `.claude/shared/story/project-standards.md`.
 
 ## Step 2 — Check for work in progress
 
@@ -48,7 +48,7 @@ Every question in `PLAN.md`'s **Open questions** needs a decision in `LOGS.md` b
 
 ## Step 4 — Implement
 
-Follow the plan exactly and the project standards you found. Whenever a hook acts on a tool call, follow `<plugin-root>/shared/ticket/project-hooks.md`.
+Follow the plan exactly and the project standards you found. Whenever a hook acts on a tool call, follow `.claude/shared/story/project-hooks.md`.
 
 Stop and return questions — leaving finished work on disk — if you hit any of these:
 
@@ -63,7 +63,7 @@ Small, local choices the plan doesn't cover and that don't change behavior (a he
 
 ## Step 5 — Return your result
 
-Return exactly one of these as your final message, following every rule in `<plugin-root>/shared/ticket/result-format.md`. Before returning, stop every process you started that is still running, such as a watcher or a dev server.
+Return exactly one of these as your final message, following every rule in `.claude/shared/story/result-format.md`. Before returning, stop every process you started that is still running, such as a watcher or a dev server.
 
 Every claim about deploying or running the change, anywhere in your result (a manual step, a registration, a migration to run), cites `<file>:<line>` or a `LOGS.md` decision, or ends with `(unverified)`.
 
