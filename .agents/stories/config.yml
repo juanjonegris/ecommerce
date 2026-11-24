@@ -1,0 +1,4 @@
+commands:
+  fix:
+    mode: plan
+    include_minor: false
