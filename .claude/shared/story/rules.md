@@ -38,7 +38,7 @@ Never continue into the next command's work. Hand off and wait for the user to r
 
 - **Living: `SPEC.md`, `PLAN.md`.** They state what should be true now. An edit rewrites the affected sections and never narrates what they replaced. A decision may cite the change entry behind it (`LOGS.md #<n>`). Every edit has a change entry whose `Impact:` names the file and the sections updated (the step's own change entry counts). Once one of `PLAN.md`'s **Open questions** is answered, remove it from there (write `none` once it's empty).
 - **Who updates living artifacts.** Any step that makes the work contradict `SPEC.md` or `PLAN.md` updates it in that step. A `scope-change` updates `SPEC.md`, and `PLAN.md` if it exists.
-- **Records: `IMPLEMENTATION-SUMMARY.md`, `REVIEW.md`.** `/story-implement` writes `IMPLEMENTATION-SUMMARY.md` and `/story-review` writes `REVIEW.md` on each pass; other commands only append to them. `/story-fix` appending its Fix Summary to `REVIEW.md` is such an append. `/story-fix` and changes between commands add each file they touch to `IMPLEMENTATION-SUMMARY.md` under **Changes after implementation** (replacing its `None`) as ``- `<path>` — <what changed> (<source>)``, where `<source>` is `see change entry #<n>` or `fix <codes>`.
+- **Records: `IMPLEMENTATION-SUMMARY.md`, `REVIEW.md`, `VALIDATION.md`, `RETRO.md`.** `/story-implement` writes `IMPLEMENTATION-SUMMARY.md` and `/story-review` writes `REVIEW.md` on each pass; other commands only append to them. `/story-fix` appending its Fix Summary to `REVIEW.md` is such an append. `/story-validate` writes `VALIDATION.md` on each run; `/story-retro` writes `RETRO.md`. `/story-fix` and changes between commands add each file they touch to `IMPLEMENTATION-SUMMARY.md` under **Changes after implementation** (replacing its `None`) as ``- `<path>` — <what changed> (<source>)``, where `<source>` is `see change entry #<n>` or `fix <codes>`.
 
 ---
 
@@ -47,7 +47,9 @@ Never continue into the next command's work. Hand off and wait for the user to r
 Outside `/story-implement` and `/story-fix`, don't edit source files on your own. When the user asks for a change between commands:
 
 - **A change that needs planning** (a design decision, a change to the plan's architecture, work across many files), or any change before `IMPLEMENTATION-SUMMARY.md` exists: update `SPEC.md` or `PLAN.md` per **Artifact ownership**, and hand off to `/story-plan <id>` if there's no `PLAN.md` yet, otherwise to `/story-implement <id>`.
-- **Any other change**: make it in this session, update `SPEC.md` or `PLAN.md` per **Artifact ownership** if the change contradicts them, and log a change entry. Add each file it touches to `IMPLEMENTATION-SUMMARY.md` per **Artifact ownership**, citing that entry, then hand off to `/story-review <id>`.
+- **Any other change**: make it in this session, update `SPEC.md` or `PLAN.md` per **Artifact ownership** if the change contradicts them, and log a change entry. Add each file it touches to `IMPLEMENTATION-SUMMARY.md` per **Artifact ownership**, citing that entry, then hand off to `/story-validate <id>`.
+
+`/story-retro` edits only harness files whose edit the user accepted.
 
 ---
 
@@ -87,12 +89,12 @@ There are two roots, and they are never mixed. Both are relative to the project 
 
 **Workflow files** are the harness, in `.claude/`:
 
-| Location                          | Purpose                                                                                                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/shared/story/rules.md`   | This file                                                                                                                                                   |
-| `.claude/shared/story/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `story-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md` |
-| `.claude/skills/story-<command>/` | One skill per command, invoked as `/story-<command>`                                                                                                        |
-| `.claude/agents/story-*.md`       | The subagents `story-architect`, `story-implementer` and `story-reviewer`, dispatched with the Agent tool. See [`delegated work`](./delegated-work.md)      |
+| Location                          | Purpose                                                                                                                                                                      |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/shared/story/rules.md`   | This file                                                                                                                                                                    |
+| `.claude/shared/story/`           | `vocabulary.md`, `result-format.md`, `logs-format.md`, `config.md`, `story-identifiers.md`, `delegated-work.md`, `project-standards.md`, `project-hooks.md`, `validation.md` |
+| `.claude/skills/story-<command>/` | One skill per command, invoked as `/story-<command>`                                                                                                                         |
+| `.claude/agents/story-*.md`       | The subagents `story-architect`, `story-implementer` and `story-reviewer`, dispatched with the Agent tool. See [`delegated work`](./delegated-work.md)                       |
 
 **Story files** are the work product, committed with the code in `.agents/stories/`:
 

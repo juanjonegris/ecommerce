@@ -108,19 +108,20 @@ Every finding carries a code: the severity's letter plus a number, e.g. `B1`, `M
 
 ### Review verdict
 
-| Value        | Meaning                               | Next step                                                                               |
-| ------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
-| `fix-needed` | At least one blocker or major finding | `/story-fix <id>`                                                                       |
-| `approved`   | No blockers or major findings         | `none — review clean`, plus `; optional: /story-fix <id> <codes>` when there are minors |
+| Value        | Meaning                               | Next step                                                                             |
+| ------------ | ------------------------------------- | ------------------------------------------------------------------------------------- |
+| `fix-needed` | At least one blocker or major finding | `/story-fix <id>`                                                                     |
+| `approved`   | No blockers or major findings         | `/story-retro <id>`, plus `; optional: /story-fix <id> <codes>` when there are minors |
 
 `<codes>` are the minors' codes, `N1` through `N<n>` from the `Minor:` count, comma-separated with no spaces: `N1,N2,N3`.
 
 ### Fix next step
 
-| Fixed from                                        | Next step                                                  |
-| ------------------------------------------------- | ---------------------------------------------------------- |
-| An `approved` review, with `New issues found: no` | `none — no re-review needed; optional: /story-review <id>` |
-| Anything else                                     | `/story-review <id>`                                       |
+Every fix goes to validation, whatever it was fixed from, including a minor-only fix after an `approved` review.
+
+| Fixed from | Next step              |
+| ---------- | ---------------------- |
+| Any review | `/story-validate <id>` |
 
 ### Fix mode
 
@@ -129,3 +130,46 @@ Every finding carries a code: the severity's letter plus a number, e.g. `B1`, `M
 | `auto`        | Apply all in-scope fixes without asking, report at the end                     |
 | `plan`        | Show a one-line-per-finding plan, wait for one confirmation, apply in one pass |
 | `interactive` | Ask per finding before applying                                                |
+
+---
+
+## Validate & retro
+
+Values used by `validate` and `retro`. What a validation runs and records is defined in [`validation.md`](./validation.md).
+
+### Validation result
+
+The `Result:` in `VALIDATION.md`, and the `Validation:` field of `/story-validate completed`.
+
+| Value    | Meaning                                             |
+| -------- | --------------------------------------------------- |
+| `passed` | Every gate passed                                   |
+| `failed` | A gate failed, and every gate after it is `not-run` |
+
+### Gate result
+
+The result of one gate in `VALIDATION.md`'s **Gates** table.
+
+| Value     | Meaning                                  |
+| --------- | ---------------------------------------- |
+| `pass`    | The gate's command exited 0              |
+| `fail`    | The gate's command exited non-zero       |
+| `not-run` | An earlier gate failed, so it didn't run |
+
+### Validation next step
+
+| Validation | Condition                                                                                                                          | Next step                                         |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `failed`   | any                                                                                                                                | `/story-review <id>`                              |
+| `passed`   | the latest `/story-review completed` has `Verdict: approved`, and every `/story-fix completed` after it has `New issues found: no` | `/story-retro <id>; optional: /story-review <id>` |
+| `passed`   | otherwise                                                                                                                          | `/story-review <id>`                              |
+
+### Retro proposal outcome
+
+The outcome of one `/story-retro` proposal in `RETRO.md`.
+
+| Value      | Meaning                                                    |
+| ---------- | ---------------------------------------------------------- |
+| `accepted` | The user accepted the edit as proposed, and it was applied |
+| `rejected` | The user rejected the edit; nothing was applied            |
+| `edited`   | The user replaced the text, and it was applied             |

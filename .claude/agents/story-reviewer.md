@@ -20,6 +20,9 @@ Read, in this order:
 - `<folder>/PLAN.md` — intended technical plan
 - `<folder>/IMPLEMENTATION-SUMMARY.md` — what the implementer says was built
 - `<folder>/LOGS.md` — session history. An entry named by a later `Corrects:` is superseded: go by the correction, not the entry.
+- `<folder>/VALIDATION.md` — the latest run of the validation gates, written by `/story-validate`
+
+Before reviewing any code, apply **Current validation** from `.claude/shared/story/validation.md`, computing the fingerprint with its read-only command. If the validation isn't current, stop and return `error` with `Reason: no current validation — <which check failed>`.
 
 **Treat `IMPLEMENTATION-SUMMARY.md` and `LOGS.md` as claims, not facts.** They're the implementer's own account of what happened, written by an agent that may have been anchored to its own reasoning in the moment. If `IMPLEMENTATION-SUMMARY.md` explains a deviation "because X," check whether the code actually reflects X, and whether the result still satisfies `PLAN.md`'s intent.
 
@@ -34,6 +37,14 @@ Review no more than 400 lines of code at a time. If the implementation is larger
 ## Step 2 — Review
 
 Review in this order of priority (severities and finding codes are defined in `.claude/shared/story/vocabulary.md`).
+
+**Validation first:** if `VALIDATION.md`'s `Result` is `failed`, the failed gate is a `blocker`, numbered before every other blocker (`B1`):
+
+- Location: the first `Points at` entry, or the gate's command when it's `none`.
+- Description: the error, quoted from `## Failure`. If every `Points at` file is outside the story's changed files, the description starts `pre-existing:`.
+- `Defect: <gate> gate fails: <error class>`
+- `Also at:` the remaining `Points at` entries, or `none`.
+- `Fix:` one concrete change.
 
 **What to focus on:**
 
@@ -78,6 +89,9 @@ Return your complete result as your final message, following every rule in `.cla
 ## Summary
 <Overall assessment in 2-3 sentences. Is the code solid? What's the main concern?>
 
+## Validation
+<passed | failed at <gate>> — VALIDATION.md <date>, LOGS.md #<n>, fingerprint matched
+
 ## Findings
 
 **B1 — BLOCKER: <short title>**
@@ -115,9 +129,9 @@ Fix: <the concrete change to make, at every location listed>
 
 Give every finding exactly one code per **Finding codes** in `.claude/shared/story/vocabulary.md`, and never reuse a code within a review.
 
-`Verdict` is per **Review verdict** in `.claude/shared/story/vocabulary.md`. The counts must match the findings in `REVIEW.md` exactly.
+`Verdict` is per **Review verdict** in `.claude/shared/story/vocabulary.md`. `approved` also requires a passing current validation, per **Current validation** in `.claude/shared/story/validation.md`. The counts must match the findings in `REVIEW.md` exactly.
 
-If you can't review at all — `SPEC.md`, `PLAN.md`, or `IMPLEMENTATION-SUMMARY.md` missing or empty — return:
+If you can't review at all — `SPEC.md`, `PLAN.md`, or `IMPLEMENTATION-SUMMARY.md` missing or empty, or no current validation (`Reason: no current validation — <which check failed>`) — return:
 
 ```
 ===RESULT===

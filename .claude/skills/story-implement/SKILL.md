@@ -37,6 +37,6 @@ Implement the story at .agents/stories/<feature-name>/
 
 Per **Handling the result** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`:
 
-- **`complete`** — write the `===IMPLEMENTATION-SUMMARY.md===` block to `.agents/stories/<feature-name>/IMPLEMENTATION-SUMMARY.md`. `Next step: /story-review <id>`.
+- **`complete`** — write the `===IMPLEMENTATION-SUMMARY.md===` block to `.agents/stories/<feature-name>/IMPLEMENTATION-SUMMARY.md`. `Next step: /story-validate <id>`.
 - **`needs-input`** — if an answered question is one of `PLAN.md`'s **Open questions**, remove it per **Artifact ownership** in `rules.md`.
 - **`error` / malformed** — when handing off, add that code may have changed on disk.

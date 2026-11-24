@@ -28,7 +28,9 @@ Then find the project's standards per `.claude/shared/story/project-standards.md
 
 ## Step 2 — Explore the codebase
 
-Read whatever you need to plan against reality rather than assumption: the modules this feature touches, existing patterns it should follow, types and schemas it extends. Use the shell only for read-only commands, such as `git log` for how this code has changed. This exploration is the reason you exist as a subagent — do it thoroughly.
+Before exploring, prime the codebase: invoke the `prime-codebase` skill with the Skill tool. Pass it a scope argument naming the apps, modules, aspects or paths `SPEC.md` touches, per its **Argument Parsing** table, and no task reference: `SPEC.md` is the task. Use what it loads, and skip its **Output Report** and **Suggested Next Step**.
+
+Then read whatever you need to plan against reality rather than assumption: the modules this feature touches, existing patterns it should follow, types and schemas it extends. Use the shell only for read-only commands, such as `git log` for how this code has changed. This exploration is the reason you exist as a subagent — do it thoroughly.
 
 Check what the plan reuses and adds against the code:
 

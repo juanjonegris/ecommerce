@@ -1,6 +1,6 @@
 ---
 name: story-review
-description: "Reviews an implemented story against its SPEC.md, its PLAN.md, and the project's own standards through the isolated, read-only reviewer subagent, and writes REVIEW.md with coded findings (B/M/N/S) and a verdict."
+description: "Reviews an implemented, validated story against its SPEC.md, its PLAN.md, its latest validation, and the project's own standards through the isolated, read-only reviewer subagent, and writes REVIEW.md with coded findings (B/M/N/S) and a verdict. Requires a current validation from /story-validate."
 argument-hint: '[<story-id>]'
 disable-model-invocation: true
 ---
@@ -21,6 +21,10 @@ If `.agents/stories/<feature-name>/IMPLEMENTATION-SUMMARY.md` is empty or missin
 
 > "No implementation found for `<story-id>`. Run `/story-implement <id>` first."
 
+Then check **Current validation** per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/validation.md`, the `LOGS.md` ordering and the fingerprint both. If the validation isn't current, stop and tell the user, logging nothing:
+
+> "No current validation for `<story-id>` (<which check failed>). Run `/story-validate <id>` first."
+
 ---
 
 ## Step 2 — Dispatch to the reviewer subagent
@@ -38,3 +42,4 @@ Review the story at .agents/stories/<feature-name>/
 Per **Handling the result** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/delegated-work.md`.
 
 - **`complete`** — write the `===REVIEW.md===` block to `.agents/stories/<feature-name>/REVIEW.md`. Take `Next step:` per **Review verdict** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
+- **`error`** whose `Reason:` starts with `no current validation` — log `/story-review failed` as usual, with `Next step: /story-validate <id>`.

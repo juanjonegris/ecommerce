@@ -154,6 +154,7 @@ Each of these is a **Stop and ask** from `rules.md`, even in `auto`:
 - A fix adds a dependency `PLAN.md` doesn't list
 - A project standard conflicts with a finding's `Fix:` line
 - A hook blocks a tool call and complying needs a person. Handle every hook per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/project-hooks.md`
+- A fix changes a file outside the story's changed files (a finding starting `pre-existing:`)
 
 ---
 
@@ -205,7 +206,7 @@ Update `SPEC.md`, `PLAN.md` and `IMPLEMENTATION-SUMMARY.md` per **Artifact owner
 
 ### 6c. LOGS.md entry
 
-Append `/story-fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`, with `Next step:` per **Fix next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`.
+Append `/story-fix completed` to `.agents/stories/<feature-name>/LOGS.md` per `${CLAUDE_PROJECT_DIR}/.claude/shared/story/logs-format.md`, with `Next step:` per **Fix next step** in `${CLAUDE_PROJECT_DIR}/.claude/shared/story/vocabulary.md`, which is always `/story-validate <id>`.
 
 ---
 

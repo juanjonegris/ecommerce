@@ -47,20 +47,24 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 
 ### Value shapes
 
-| Field                                  | Shape                                                                                                                                                    |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Counts                                 | digits only, e.g. `3`                                                                                                                                    |
-| `Open questions`, `Concerns`           | a count, or `none`                                                                                                                                       |
-| `Acceptance criteria`                  | `<X> of <Y> met`                                                                                                                                         |
-| `Deviations from plan`                 | `no`, or `yes — see change entries above`                                                                                                                |
-| `Known issues`, `New issues found`     | `no`, or `yes — <note>`                                                                                                                                  |
-| `Files touched`                        | comma-separated paths, or `none`                                                                                                                         |
-| `Source`                               | an issue id (`GH-<n>`), or `none`                                                                                                                        |
-| `Mode`                                 | a fix mode from `vocabulary.md`                                                                                                                          |
-| `Verdict`                              | a verdict from `vocabulary.md` that is valid for the command                                                                                             |
-| `Minor fixed`                          | a count, or `skipped — not in scope`                                                                                                                     |
-| `Suggestions fixed`, `Skipped by user` | a count, or `none`                                                                                                                                       |
-| `Manual steps`                         | comma-separated, each item one action the user takes before the next command, such as restarting a local service or renaming a file before handing it on |
+| Field                                     | Shape                                                                                                                                                    |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Counts                                    | digits only, e.g. `3`                                                                                                                                    |
+| `Open questions`, `Concerns`, `Proposals` | a count, or `none`                                                                                                                                       |
+| `Acceptance criteria`                     | `<X> of <Y> met`                                                                                                                                         |
+| `Deviations from plan`                    | `no`, or `yes — see change entries above`                                                                                                                |
+| `Known issues`, `New issues found`        | `no`, or `yes — <note>`                                                                                                                                  |
+| `Files touched`                           | comma-separated paths, or `none`                                                                                                                         |
+| `Source`                                  | an issue id (`GH-<n>`), or `none`                                                                                                                        |
+| `Mode`                                    | a fix mode from `vocabulary.md`                                                                                                                          |
+| `Verdict`                                 | a verdict from `vocabulary.md` that is valid for the command                                                                                             |
+| `Minor fixed`                             | a count, or `skipped — not in scope`                                                                                                                     |
+| `Suggestions fixed`, `Skipped by user`    | a count, or `none`                                                                                                                                       |
+| `Validation`                              | a validation result from `vocabulary.md`                                                                                                                 |
+| `Gates passed`                            | `<x> of <y>`                                                                                                                                             |
+| `Failed gate`                             | a gate name from `.claude/commands/validate.md`, or `none`                                                                                               |
+| `Files changed`                           | comma-separated paths, or `none`                                                                                                                         |
+| `Manual steps`                            | comma-separated, each item one action the user takes before the next command, such as restarting a local service or renaming a file before handing it on |
 
 ---
 
@@ -135,6 +139,23 @@ Any `completed` entry may add `Manual steps:` right before `Next step:`. Leave i
 - New issues found (`yes — <note>` or `no`)
 - Next step (per **Fix next step** in `vocabulary.md`)
 
+### `/story-validate completed`
+
+- Validation (`passed` or `failed`)
+- Gates passed (`<x> of <y>`)
+- Failed gate (gate name, or `none`)
+- Next step (per **Validation next step** in `vocabulary.md`)
+
+### `/story-retro completed`
+
+- Proposals (count, or `none`)
+- Accepted (count, `edited` proposals included)
+- Rejected (count)
+- Files changed (comma-separated paths, or `none`)
+- Next step (`none — story complete`)
+
+Neither `/story-validate` nor `/story-retro` writes `paused` or `failed`: a precondition that isn't met stops the command without logging.
+
 ---
 
 ## Change entries
@@ -198,7 +219,7 @@ All fields are required, in the order shown, except `Corrects:`, which every `co
 - Files modified: 4
 - Deviations from plan: yes — see change entries above
 - Known issues: no
-- Next step: /story-review GH-42
+- Next step: /story-validate GH-42
 
 ## #6 — 2026-04-23 16:40:12 — change
 
