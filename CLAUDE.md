@@ -88,7 +88,7 @@ Path-scoped rules in `.claude/rules/` load automatically when you read or edit a
 - `frontend/nextjs.md`, `frontend/e2e.md` — `apps/web`
 - `infra/build-ci-docker.md` — package.json, turbo, CI, Dockerfiles, env vars
 
-Skills: `new-api-module`, `schema-migration`, `rules-check-drift`, `prime-codebase`. Commands: `/planning`, `/execute`, `/validate`, `/commit`, `/check-ignore-comments`.
+Skills: `new-api-module`, `schema-migration`, `rules-check-drift`, `prime-ecommerce` (scopes: `storefront`, `admin`, `platform`, `ai-layer`, app, module, aspect), `plan-create-prd` → `plan-architecture` → `plan-slice-epic` (epics in `.agents/epics/`), `ai-layer-scan` (temporary). Commands: `/planning`, `/execute`, `/validate`, `/commit`, `/check-ignore-comments`.
 
 Story workflow (one GitHub issue or feature, start to finish): `/story-init` → `/story-spec` → `/story-plan` → `/story-implement` → `/story-validate` → `/story-review` → `/story-fix` (then `/story-validate` → `/story-review` until approved) → `/story-retro`, with `/story-resume` to pick up a story. Subagents: `story-architect`, `story-implementer`, `story-reviewer`. Rules live in `.claude/shared/story/`, and artifacts in `.agents/stories/<id>-<slug>/`.
 

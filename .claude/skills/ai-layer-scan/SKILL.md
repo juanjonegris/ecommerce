@@ -1,9 +1,9 @@
 ---
-name: opportunity-scan
+name: ai-layer-scan
 description: "Temporary AI-layer improvement scan for this repo. Point it at ONE story run (a .agents/stories/<id>/ folder) to find what in CLAUDE.md, .claude/rules, skills, subagents or hooks would have prevented a specific failure (the reactive loop — 'that went wrong, what should change in the AI layer?'), or at a window of Claude Code session logs to find recurring patterns worth encoding (the proactive scan). Outputs a shape-only HTML report to .claude/reports/. Use to evolve the AI layer from real usage."
 ---
 
-# Opportunity Scan — find what to change, from what actually happened
+# AI-layer scan — find what to change, from what actually happened
 
 > **Temporary.** This is a stop-gap for improving this repo's AI layer while the story workflow matures. Retire it
 > once `/story-retro` and `rules-check-drift` cover what it finds. Don't build structure around it.
@@ -132,7 +132,7 @@ the two separate.
    - a specialized recurring delegation → a **subagent** (`.claude/agents/`)
    - a clean end-to-end hand-off you do often → an **automation** (a command, or a CI workflow)
 
-4. **Write the report** as a single self-contained HTML file at `.claude/reports/opportunity-scan-<YYYY-MM-DD>.html`
+4. **Write the report** as a single self-contained HTML file at `.claude/reports/ai-layer-scan-<YYYY-MM-DD>.html`
    (gitignored, like the other local reports; see the contract below), then tell the user where it is.
 
 ## Report contract — prescribe HOW to render, never WHAT to include
