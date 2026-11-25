@@ -22,6 +22,7 @@ Stack: TypeScript 5.9 (strict) · NestJS 11 · Prisma 7 + PostgreSQL 16 · Redis
 8. **Server Components by default** in `apps/web`; `'use client'` only for hooks, events, or browser APIs.
 9. **Check existing `package.json` files before adding a dependency.** New deps must be open source or have a meaningful free tier.
 10. **Log every mutation** with a dot-namespaced event and `requestId`; never log secrets.
+11. **All code is written in English**, even when the conversation is in Spanish or another language. This covers identifiers, comments, log events and messages, error messages, test names, and commit messages. User-facing copy is the only exception: it lives in `apps/web/src/i18n/messages/` (`es.json`, `en.json`).
 
 ## Map
 
