@@ -32,7 +32,7 @@ If the last command entry in `LOGS.md` is `/story-implement paused` or `/story-i
 
 Run the gates per **Gates** in `validation.md`: one at a time, in order, each in its own Bash call, stopping at the first failure. Run every gate on every run, even when nothing changed since the last validation.
 
-After each gate, post one progress line with its result and time, as `.claude/commands/validate.md:35` does:
+After each gate, post one progress line with its result and time, in this form:
 
 ```
 ✅ Lint 42s

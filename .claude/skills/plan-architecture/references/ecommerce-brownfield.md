@@ -62,7 +62,7 @@ From `CLAUDE.md` (hard constraints):
 - New services get unit tests built on `apps/api/test/factories/` (`.claude/rules/backend/testing.md`).
 - New user-facing flows get, or update, a Playwright spec with `data-testid` selectors (`apps/web/e2e/`,
   `.claude/rules/frontend/e2e.md`).
-- The gates are the ones `/validate` runs: format, lint, typecheck, test, build.
+- The gates are the ones `/story-validate` runs (see `.claude/shared/story/validation.md`): format, lint, typecheck, test, build.
 
 ## Languages and audiences
 

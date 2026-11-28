@@ -69,7 +69,7 @@ without that context. Do not stop the priming.
 `architecture.md` and `stories.md`.
 
 **Legacy plans / prompts:** read `.claude/plans/<name>.md` and/or `.claude/archive/module-prompts/<name>-prompt.md`.
-These come from the earlier `/planning` → `/execute` flow: background, not current specs.
+These come from the retired `/planning` → `/execute` flow: background, not current specs.
 
 Treat the issue, story or epic as the task context for everything that follows. Briefly summarize it before
 continuing. If the task implies a scope (e.g. an issue about discounts in the admin), infer it and say so.
@@ -215,6 +215,7 @@ Recommend one:
 - an epic with an agreed architecture → `plan-slice-epic`
 - a GitHub issue to build → `/story-spec GH-<n>`
 - a story in progress → `/story-resume GH-<n>`
-- a very small change → direct implementation, then `/validate` and `/commit`
+- a very small change → direct implementation, then the gates from `.claude/shared/story/validation.md`, then a
+  conventional commit
 
-`/planning` and `/execute` remain only for legacy plans in `.claude/plans/`.
+The plans in `.claude/plans/` are history: the commands that wrote and ran them are retired.

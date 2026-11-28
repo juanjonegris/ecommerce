@@ -62,7 +62,7 @@ This guide defines the schema. The discipline (when to log, when not to) lives i
 | `Suggestions fixed`, `Skipped by user`    | a count, or `none`                                                                                                                                       |
 | `Validation`                              | a validation result from `vocabulary.md`                                                                                                                 |
 | `Gates passed`                            | `<x> of <y>`                                                                                                                                             |
-| `Failed gate`                             | a gate name from `.claude/commands/validate.md`, or `none`                                                                                               |
+| `Failed gate`                             | a gate name from **Gates** in `validation.md`, or `none`                                                                                                 |
 | `Files changed`                           | comma-separated paths, or `none`                                                                                                                         |
 | `Manual steps`                            | comma-separated, each item one action the user takes before the next command, such as restarting a local service or renaming a file before handing it on |
 

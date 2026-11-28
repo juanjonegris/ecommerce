@@ -48,7 +48,7 @@ apps/web/                 Next.js app (port 3000)
 packages/types/           @repo/types — shared interfaces + Zod, built to dist/ (CJS)
 packages/eslint-config/   shared ESLint flat configs (the enforced style rules)
 packages/tsconfig/        tsconfig presets
-.claude/                  rules/ (auto-loaded by path), skills/, agents/, shared/story/ (story workflow rules), commands/, plans/, archive/ (history, not rules)
+.claude/                  rules/ (auto-loaded by path), skills/, agents/, shared/story/ (story workflow rules), plans/, archive/ (history, not rules)
 .agents/                  PRD.md; stories/ (story workflow artifacts, committed)
 ```
 
@@ -88,7 +88,7 @@ Path-scoped rules in `.claude/rules/` load automatically when you read or edit a
 - `frontend/nextjs.md`, `frontend/e2e.md` — `apps/web`
 - `infra/build-ci-docker.md` — package.json, turbo, CI, Dockerfiles, env vars
 
-Skills: `new-api-module`, `schema-migration`, `rules-check-drift`, `prime-ecommerce` (scopes: `storefront`, `admin`, `platform`, `ai-layer`, app, module, aspect), `plan-create-prd` → `plan-architecture` → `plan-slice-epic` (epics in `.agents/epics/`), `ai-layer-scan` (temporary). Commands: `/planning`, `/execute`, `/validate`, `/commit`, `/check-ignore-comments`.
+Skills: `new-api-module`, `schema-migration`, `rules-check-drift`, `prime-ecommerce` (scopes: `storefront`, `admin`, `platform`, `ai-layer`, app, module, aspect), `plan-create-prd` → `plan-architecture` → `plan-slice-epic` (epics in `.agents/epics/`), `ai-layer-scan` (temporary).
 
 Story workflow (one GitHub issue or feature, start to finish): `/story-init` → `/story-spec` → `/story-plan` → `/story-implement` → `/story-validate` → `/story-review` → `/story-fix` (then `/story-validate` → `/story-review` until approved) → `/story-retro`, with `/story-resume` to pick up a story. Subagents: `story-architect`, `story-implementer`, `story-reviewer`. Rules live in `.claude/shared/story/`, and artifacts in `.agents/stories/<id>-<slug>/`.
 
@@ -96,7 +96,7 @@ Story workflow (one GitHub issue or feature, start to finish): `/story-init` →
 
 A feature is done only when all of these hold — report which ones you ran and which you could not:
 
-1. `/validate` passes (format, lint, typecheck, tests, build, rules drift check).
+1. The gates pass: `/story-validate` for a story, or the same commands by hand (`.claude/shared/story/validation.md` § Gates, which mirror CI): install, format, lint, typecheck, test, build.
 2. New services have unit tests built on `test/factories/`; new user-facing flows have or update a Playwright spec with `data-testid` selectors.
 3. The feature works end to end in the running app (API via Swagger at `/docs`, UI in the browser).
 4. No changes outside the feature's scope.

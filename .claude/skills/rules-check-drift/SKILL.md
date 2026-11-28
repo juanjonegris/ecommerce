@@ -1,6 +1,6 @@
 ---
 name: rules-check-drift
-description: Check whether CLAUDE.md and the path-scoped rules in .claude/rules/ still match the codebase after recent changes. Reports now-false rules, drifted map entries, dead `paths` globs, and any new invariant worth adding, each with the minimal edit. Advisory and anti-bloat. Run from /validate or before a merge.
+description: Check whether CLAUDE.md and the path-scoped rules in .claude/rules/ still match the codebase after recent changes. Reports now-false rules, drifted map entries, dead `paths` globs, and any new invariant worth adding, each with the minimal edit. Advisory and anti-bloat. Run from /story-retro or before a merge.
 argument-hint: '[optional diff range, e.g. main...HEAD]'
 ---
 

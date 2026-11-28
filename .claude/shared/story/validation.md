@@ -6,9 +6,24 @@
 
 ## Gates
 
-The gates are steps 1–6 of `.claude/commands/validate.md`, in order, with the commands as written there. Read that file on every run; never restate a gate or its command from memory. Its step 7, the rules drift check, doesn't run here: `/story-retro` runs it.
+The gates mirror the jobs in `.github/workflows/ci.yml`, the checks a pull request must pass. Use these names and commands exactly; never restate a gate from memory. **If you change a CI job, update this table in the same change.**
 
-Run the gates one at a time, and stop at the first failure. Never fix anything, and never invoke the `validate` skill: the gates change no tracked files (`.claude/commands/validate.md:56`).
+| #   | Gate         | Command                          | CI job                 |
+| --- | ------------ | -------------------------------- | ---------------------- |
+| 1   | Install      | `pnpm install --frozen-lockfile` | every job's first step |
+| 2   | Format check | `pnpm format:check`              | `lint`                 |
+| 3   | Lint         | `pnpm lint`                      | `lint`                 |
+| 4   | Typecheck    | `pnpm typecheck`                 | `typecheck`            |
+| 5   | Test         | `pnpm test`                      | `test`                 |
+| 6   | Build        | `pnpm build`                     | `build`                |
+
+Not run here:
+
+- **E2E** (the `e2e` job, `pnpm --filter @repo/web test:e2e`): it needs Docker, a seeded database and the api and web servers running. Run it on demand.
+- **The Docker production build** (`docker compose -f docker-compose.prod.yml build`): run it before a deploy.
+- **The rules drift check:** `/story-retro` runs it.
+
+Run the gates one at a time, in the order above, and stop at the first failure. Never fix anything: the gates change no tracked files (`install` writes `node_modules`, and `build` writes `dist/` and `.next/`, all gitignored).
 
 Run each gate in its own Bash call, writing its output to a temp file so a passing gate's output stays out of the context:
 
@@ -79,10 +94,10 @@ untracked=$(git ls-files --others --exclude-standard -- . ':(exclude).agents/sto
 ## Not run here
 
 - Rules drift check — runs in `/story-retro`
-- E2E and the Docker build — skipped by `/validate` (`.claude/commands/validate.md:39-42`)
+- E2E and the Docker production build — run on demand
 ````
 
-- The **Gates** table lists every gate in `.claude/commands/validate.md`'s order, with its name and command copied from there.
+- The **Gates** table lists every gate from **Gates** above, in that order, with its name and command copied from there.
 - `## Failure` is present only when `Result` is `failed`.
 
 ---
